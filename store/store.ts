@@ -3,14 +3,13 @@ import { User } from '../types/auth';
 import { Message } from '../types/chat';
 import { makeObservable } from 'mobx';
 import _ from 'lodash'
-import { randomUUID } from 'expo-crypto';
-import dayjs from 'dayjs';
+import database from './database';
 
 
 class Store {
     users: User[] = []
     messages: Message[] = []
-    scheme: 'light' | 'dark' |'system' = 'light'
+    scheme: 'light' | 'dark' | 'system' = 'light'
 
     #admin: User = {
         address: 'address',
@@ -30,12 +29,23 @@ class Store {
             deleteMessage: action,
         });
 
-        reaction(() => this.users, (users) => {
-            console.log(users);
-        })
+        reaction(() => this.users, (users, prev) => {
+            if (users.length > prev.length)
+                database.insertUsers(_.difference(users, prev))
+            else if (users.length < prev.length)
+                database.deleteUsers(_.difference(prev, users))
+            else
+                throw new Error("Users Update Not Implemented")
 
-        reaction(() => this.messages, (messages) => {
-            console.log(messages);
+        }, { equals: _.isEqual })
+
+        reaction(() => this.messages, (messages, prev) => {
+            if (messages.length > prev.length)
+                database.insertMessages(_.difference(messages, prev))
+            else if (messages.length < prev.length)
+                database.insertMessages(_.difference(prev, messages))
+            else
+                throw new Error("Messages Update Not Implemented")
         })
     }
     get admin() { return this.#admin };

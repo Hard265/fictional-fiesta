@@ -60,9 +60,9 @@ export default observer(() => {
                 </>
                 :
                 <>
-                    <Animated.View className="absolute bottom-4 right-4 w-14 h-14 bg-slate-900 rounded-xl items-center justify-center" entering={ZoomIn} exiting={ZoomOut}>
-                        <TapGestureHandler onActivated={() => store.addUser({address: randomUUID(), publicKey: randomUUID(), displayName: 'Mr Namakhwa'})}>
-                            <Feather name="plus" size={24} color="white" />
+                    <Animated.View className="absolute bottom-4 right-4 w-14 h-14 bg-gray-900 dark:bg-gray-100 rounded-xl items-center justify-center" entering={ZoomIn} exiting={ZoomOut}>
+                        <TapGestureHandler onActivated={() => store.addUser({ address: randomUUID(), publicKey: randomUUID(), displayName: 'Mr Namakhwa' })}>
+                            <Feather name="plus" size={24} color={theme[colorScheme].bg} />
                         </TapGestureHandler>
                     </Animated.View>
                 </>
@@ -72,7 +72,7 @@ export default observer(() => {
                 visible={modal === 'contacts'}
                 transparent
                 statusBarTranslucent
-                onRequestClose={()=>setModal(null)}
+                onRequestClose={() => setModal(null)}
             >
                 <Pressable
                     style={StyleSheet.absoluteFill}

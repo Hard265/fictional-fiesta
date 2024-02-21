@@ -4,7 +4,7 @@ import { Stack, router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
 import { useColorScheme } from "nativewind";
-import React from "react";
+import React, { useState } from "react";
 import { Pressable, SectionList, Text, TextInput, View } from "react-native";
 import theme from "../../misc/theme";
 import { Message } from "../../types/chat";
@@ -49,7 +49,7 @@ export default observer(() => {
         <View className="flex-1 flex h-full items-center justify-center dark:bg-black">
             <Stack.Screen options={{
                 title: headerTitle,
-                headerLeft: _.isEmpty(selected) ? undefined : (props) => (<Feather name="x" color={props.tintColor} />),
+                headerLeft: _.isEmpty(selected) ? undefined : (props) => (<Feather name="x" color={props.tintColor} size={24} />),
                 headerRight(props) {
                     return (
                         <Feather name="user" size={24} color={props.tintColor} onPress={toUser} />
@@ -59,27 +59,7 @@ export default observer(() => {
             <SectionList
                 className="flex-1 flex w-full h-full flex-col"
                 sections={sections}
-                renderItem={({ item }: { item: Message }) => {
-                    const handlePress = () => {
-                        setSelected(_.xor(selected, [item]));
-                    }
-                    if (_.isEqual(item.sender, store.admin)) {
-                        return <>
-                            <Pressable className={"w-full flex px-2 py-1 items-end " + (_.includes(selected, item) && ' bg-blue-600/75')} onPress={handlePress}>
-                                <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
-                                    <Text className="text-sm font-medium text-gray-900">{item.text}</Text>
-                                </View>
-                            </Pressable>
-                        </>
-                    }
-                    return <>
-                        <Pressable className={"w-full flex px-2 py-1 items-end " + (_.includes(selected, item) && ' bg-blue-600/75')} onPress={handlePress}>
-                            <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
-                                <Text className="text-sm font-medium text-gray-900 dark:text-white">{item.text}</Text>
-                            </View>
-                        </Pressable>
-                    </>
-                }}
+                renderItem={renderItem}
                 renderSectionHeader={renderSectionHeader}
                 ListEmptyComponent={emptyListComponent()}
                 keyExtractor={(item) => item.id}
@@ -105,9 +85,35 @@ export default observer(() => {
     );
 })
 
+function renderItem({ item }: { item: Message; }) {
+    const [overlineHidden, setOverlineHidden] = useState(false);
+
+    const handlePress = () => {
+        setOverlineHidden((value) => !value);
+    };
+    if (_.isEqual(item.sender, store.admin)) {
+        return <>
+            <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
+                <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
+                    <Text className="text-sm font-medium text-gray-900">{item.text}</Text>
+                </View>
+                {!overlineHidden && <Text className="text-gray-400 dark:text-gray-500">{dayjs(item.timestamp).format("HH:mm")}</Text>}
+            </Pressable>
+        </>;
+    }
+    return <>
+        <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
+            <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <Text className="text-sm font-medium text-gray-900 dark:text-white">{item.text}</Text>
+            </View>
+            {!overlineHidden && <Text className="text-gray-400 dark:text-gray-500">{dayjs(item.timestamp).format("HH:mm")}</Text>}
+        </Pressable>
+    </>;
+}
+
 function renderSectionHeader({ section }: { section: { title: string } }) {
     return <>
-        <Text className="text-center text-sm text-500 dark:text-gray-600 capitalize my-2">
+        <Text className="text-center text-sm text-gray-500 dark:text-gray-600 capitalize my-2">
             {section.title}
         </Text>
     </>

@@ -22,9 +22,14 @@
     "expo": "~50.0.6",
     "expo-camera": "~14.0.4",
     "expo-constants": "~15.4.5",
+    "expo-crypto": "~12.8.0",
     "expo-linking": "~6.2.2",
     "expo-router": "~3.4.7",
+    "expo-sqlite": "~13.2.2",
     "expo-status-bar": "~1.11.1",
+    "expo-system-ui": "~2.9.3",
+    "jest": "^29.3.1",
+    "jest-expo": "~50.0.2",
     "lodash": "^4.17.21",
     "mobx": "^6.12.0",
     "mobx-react": "^9.1.0",
@@ -36,15 +41,14 @@
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",
     "react-native-svg": "12.3.0",
-    "react-qr-code": "^2.0.12",
-    "expo-crypto": "~12.8.0",
-    "expo-system-ui": "~2.9.3",
-    "expo-sqlite": "~13.2.2"
+    "react-qr-code": "^2.0.12"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/jest": "^29.5.12",
     "@types/lodash": "^4.14.202",
     "@types/react": "~18.2.45",
+    "react-test-renderer": "^18.2.0",
     "tailwindcss": "3.3.2",
     "typescript": "^5.1.3"
   },
