@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
+    "buffer": "^6.0.3",
     "dayjs": "^1.11.10",
     "expo": "~50.0.6",
     "expo-camera": "~14.0.4",
