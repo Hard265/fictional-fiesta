@@ -33,17 +33,12 @@ class Store {
     reaction(
       () => this.users,
       (users, prev) => {
-        try {
-          if (users.length > prev.length)
-            database.insertUsers(_.difference(users, prev));
-          else if (users.length < prev.length)
-            database.deleteUsers(_.difference(prev, users));
-          else throw new Error("Users Update Not Implemented");
-        } catch (error) {
-          console.error(error);
-        }
-      },
-      { equals: _.isEqual }
+        if (users.length > prev.length)
+          database.insertUsers(_.difference(users, prev));
+        else if (users.length < prev.length)
+          database.deleteUsers(_.difference(prev, users));
+        else throw new Error("Users Update Not Implemented");
+      }
     );
 
     reaction(
@@ -60,6 +55,10 @@ class Store {
   init() {
     database.fetchAll<User>("users").then((users) => {
       this.users = users;
+    });
+
+    database.fetchAll<Message>("messages").then((messages) => {
+      this.messages = messages;
     });
   }
   get admin() {

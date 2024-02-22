@@ -29,7 +29,17 @@ class Database {
                 created TEXT DEFAULT CURRENT_TIMESTAMP
             );
 
-            `);
+            CREATE TABLE IF NOT EXISTS messages (
+                id TEXT PRIMARY KEY,
+                sender TEXT NOT NULL,
+                receiver TEXT NOT NULL,
+                content TEXT NOT NULL,
+                timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (sender) REFERENCES users(address) ON DELETE CASCADE ON UPDATE RESTRICT,
+                FOREIGN KEY (receiver) REFERENCES users(address) ON DELETE CASCADE ON UPDATE RESTRICT,
+          )
+
+          `);
     });
     // CREATE TRIGGER IF NOT EXISTS delete_user_trigger AFTER DELETE ON users BEGIN DELETE FROM messages WHERE sender = old.address OR receiver = old.address
   }
@@ -75,6 +85,8 @@ class Database {
             message.content,
           ]
         );
+        console.log(message);
+        
       });
     });
   }
