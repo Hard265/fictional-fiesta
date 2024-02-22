@@ -1,7 +1,7 @@
 import * as Crypto from "expo-crypto";
 import Buffer from "buffer";
 
-const wordlist: string[] = require("../assets/wordlist/english.json");
+const wordlist: string[] = require("../assets/english.json");
 
 export function generateMnemonic(): string {
     const strength = 128;
@@ -34,12 +34,11 @@ async function deriveChecksumBits(entropyBuffer: Uint8Array): Promise<string> {
     const hash: string = await Crypto.digestStringAsync(
         Crypto.CryptoDigestAlgorithm.SHA256,
         entropyBuffer.toString()
-    );
+    );    
     const hashBits: string = BigInt("0x" + hash).toString(2);
     return hashBits.slice(0, entropyBuffer.length / 4);
 }
 
-/*
 export function mnemonicToEntropy(mnemonic: string): string {
   const words = mnemonic.split(" ");
 
@@ -65,4 +64,3 @@ function lpad(str: string, padString: string, length: number): string {
   }
   return str;
 }
-*/

@@ -5,7 +5,7 @@ type Message = {
     timestamp: string;
     sender: User;
     receiver: User;
-    text: string;
+    content: string;
 }
 
 export { Message }

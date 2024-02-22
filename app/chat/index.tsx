@@ -27,6 +27,7 @@ export default observer(() => {
     const handleScannedQR = ({ data }: { data: string }) => {
 
     }
+    
 
     const data = !_.isEmpty(query) && modal === 'finder' ?
         _.filter(store.users, user => user.displayName ?
@@ -37,7 +38,7 @@ export default observer(() => {
     return (
         <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">
             <Stack.Screen options={{
-                title: "Ghost",
+                title: "Kasual",
                 headerRight(props) {
                     return <>
                         <View className="flex flex-row gap-x-4">

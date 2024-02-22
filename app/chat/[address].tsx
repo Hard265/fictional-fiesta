@@ -40,7 +40,7 @@ export default observer(() => {
 
     const handleSubmit = () => {
         inputRef.current?.blur();
-        store.pushMessage({ id: randomUUID(), sender: store.admin, receiver: user, text: input, timestamp: dayjs().toISOString() })
+        store.pushMessage({ id: randomUUID(), sender: store.admin, receiver: user, content: input, timestamp: dayjs().toISOString() })
         setInput('')
     }
     const headerTitle = _.isEmpty(selected) ? (user.displayName || user.address) : `${_.size(selected)} selected`
@@ -95,7 +95,7 @@ function renderItem({ item }: { item: Message; }) {
         return <>
             <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
                 <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
-                    <Text className="text-sm font-medium text-gray-900">{item.text}</Text>
+                    <Text className="text-sm font-medium text-gray-900">{item.content}</Text>
                 </View>
                 {!overlineHidden && <Text className="text-gray-400 dark:text-gray-500">{dayjs(item.timestamp).format("HH:mm")}</Text>}
             </Pressable>
@@ -104,7 +104,7 @@ function renderItem({ item }: { item: Message; }) {
     return <>
         <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
             <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
-                <Text className="text-sm font-medium text-gray-900 dark:text-white">{item.text}</Text>
+                <Text className="text-sm font-medium text-gray-900 dark:text-white">{item.content}</Text>
             </View>
             {!overlineHidden && <Text className="text-gray-400 dark:text-gray-500">{dayjs(item.timestamp).format("HH:mm")}</Text>}
         </Pressable>
