@@ -34,10 +34,13 @@ class Store {
       () => this.users,
       (users, prev) => {
         if (users.length > prev.length)
-          database.insertUsers(_.difference(users, prev));
-        else if (users.length < prev.length)
-          database.deleteUsers(_.difference(prev, users));
-        else throw new Error("Users Update Not Implemented");
+          database.insertUsers(_.difference(users, prev)).then(()=>{
+        console.log('was added');
+        
+        });
+        // else if (users.length < prev.length)
+        //   database.deleteUsers(_.difference(prev, users));
+        // else throw new Error("Users Update Not Implemented");
       }
     );
 
@@ -46,9 +49,9 @@ class Store {
       (messages, prev) => {
         if (messages.length > prev.length)
           database.insertMessages(_.difference(messages, prev));
-        else if (messages.length < prev.length)
-          database.insertMessages(_.difference(prev, messages));
-        else throw new Error("Messages Update Not Implemented");
+        // else if (messages.length < prev.length)
+        //   database.insertMessages(_.difference(prev, messages));
+        // else throw new Error("Messages Update Not Implemented");
       }
     );
   }
