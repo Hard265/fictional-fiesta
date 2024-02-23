@@ -1,4 +1,4 @@
-import { SQLiteDatabase, openDatabase } from "expo-sqlite";
+import { SQLiteDatabase, openDatabaseAsync } from "expo-sqlite/next";
 import { User } from "../types/auth";
 import { Message } from "../types/chat";
 import _ from "lodash";
@@ -13,13 +13,13 @@ class Database {
   }
 
   async init() {
-    this.db = openDatabase("test.db");
+    this.db = await openDatabaseAsync('databaseName');
     this.createTables();
   }
 
-  createTables() {
-    this.db?.transaction((tx) => {
-      tx.executeSql(`
+  async createTables() {
+    if (!this.db) return;
+    await this.db.execAsync(`
             PRAGMA foreign_keys = ON;
 
             CREATE TABLE IF NOT EXISTS users (
@@ -37,65 +37,53 @@ class Database {
                 timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (sender) REFERENCES users(address) ON DELETE CASCADE ON UPDATE RESTRICT,
                 FOREIGN KEY (receiver) REFERENCES users(address) ON DELETE CASCADE ON UPDATE RESTRICT,
-          )
-
-          `);
-    });
+          );
+      `);
     // CREATE TRIGGER IF NOT EXISTS delete_user_trigger AFTER DELETE ON users BEGIN DELETE FROM messages WHERE sender = old.address OR receiver = old.address
   }
 
-  async fetchAll<T>(table: schemes) {
-    let results: T[] = [];
-
-    await this.db?.transactionAsync(async (tx) => {
-      results = (await tx.executeSqlAsync(`SELECT * FROM ${table}`))
-        .rows as T[];
-    }, true);
-    return results;
+  async fetchAll<T>(table: schemes): Promise<T[]> {
+    if (!this.db) return [];
+    return await this.db.getAllAsync(`SELECT * FROM ${table}`);
   }
 
   async insertUsers(users: User[]) {
-    this.db?.transaction((tx) => {
-      _.forEach(users, (user) => {
-        tx.executeSql(
-          "INSERT OR REPLACE INTO users (address, displayName, publicKey) VALUES (?, ?, ?)",
-          [user.address, user.displayName || "", user.publicKey]
-        );
-      });
+    if (!this.db) return [];
+
+    _.forEach(users, async (user: User) => {
+      await this.db?.runAsync("INSERT OR REPLACE INTO users (address, displayName, publicKey) VALUES (?, ?, ?)", [user.address, user.displayName || "", user.publicKey]);
     });
   }
 
   async deleteUsers(users: User[]) {
-    this.db?.transaction((tx) => {
-      _.forEach(users, (user) => {
-        tx.executeSql("DELETE FROM users WHERE address = ?", [user.address]);
-      });
+    if (!this.db) return [];
+
+    _.forEach(users, async (user: User) => {
+      await this.db?.runAsync("DELETE FROM users WHERE address = ?", [user.address]);
     });
   }
 
   async insertMessages(messages: Message[]) {
-    this.db?.transaction((tx) => {
-      _.forEach(messages, (message) => {
-        tx.executeSql(
-          "INSERT INTO messages (id, sender, receiver, content) VALUES (?, ?, ?, ?)",
-          [
-            message.id,
-            message.sender.address,
-            message.receiver.address,
-            message.content,
-          ]
-        );
-        console.log(message);
-        
-      });
+    if (!this.db) return [];
+
+    _.forEach(messages, async (message: Message) => {
+      await this.db?.runAsync(
+        "INSERT INTO messages (id, sender, receiver, content) VALUES (?, ?, ?, ?)",
+        [
+          message.id,
+          message.sender.address,
+          message.receiver.address,
+          message.content,
+        ]
+      );
     });
   }
 
   async deleteMessages(messages: Message[]) {
-    this.db?.transaction((tx) => {
-      _.forEach(messages, (message) => {
-        tx.executeSql("DELETE FROM messages WHERE id = ?", [message.id]);
-      });
+    if (!this.db) return [];
+
+    _.forEach(messages, async (message: Message) => {
+      await this.db?.runAsync("DELETE FROM messages WHERE id = ?", [message.id]);
     });
   }
 }
