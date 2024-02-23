@@ -36,7 +36,7 @@ class Database {
             content TEXT NOT NULL,
             timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (sender) REFERENCES users(address) ON DELETE CASCADE ON UPDATE RESTRICT,
-            FOREIGN KEY (receiver) REFERENCES users(address) ON DELETE CASCADE ON UPDATE RESTRICT,
+            FOREIGN KEY (receiver) REFERENCES users(address) ON DELETE CASCADE ON UPDATE RESTRICT
         );
     `);
   }
