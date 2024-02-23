@@ -9,61 +9,68 @@ class Store {
   users: User[] = [];
   messages: Message[] = [];
   scheme: "light" | "dark" | "system" = "light";
+  chats: { [key: string]: Message[] } = {}
 
   #admin: User = {
-    address: "address",
-    displayName: "me",
+    address: "ee3c5216-3152-473a-8f17-c4adf8ba7bba",
+    displayName: "Me",
     publicKey: "key",
   };
 
   constructor() {
-    makeObservable(this, {
-      users: observable,
-      admin: computed,
-      messages: observable,
-      getUser: action,
-      addUser: action,
-      deleteUser: action,
-      pushMessage: action,
-      deleteMessage: action,
-    });
-
-    this.init();
-
-    reaction(
-      () => this.users,
-      (users, prev) => {
-        if (users.length > prev.length)
-          database.insertUsers(_.difference(users, prev)).then(()=>{
-        console.log('was added');
-        
+    this.init()
+      .then(() => {
+        makeObservable(this, {
+          users: observable,
+          messages: observable,
+          chats: observable,
+          admin: computed,
+          getUser: action,
+          addUser: action,
+          deleteUser: action,
+          pushMessage: action,
+          deleteMessage: action,
         });
-        // else if (users.length < prev.length)
-        //   database.deleteUsers(_.difference(prev, users));
-        // else throw new Error("Users Update Not Implemented");
-      }
-    );
+      })
+      .finally(() => {
+        reaction(
+          () => this.users,
+          (users, prev) => {
+            if (users.length > prev.length)
+              database.insertUsers(_.difference(users, prev)).then(() => {
+                console.log("was added");
+              });
+            // else if (users.length < prev.length)
+            //   database.deleteUsers(_.difference(prev, users));
+            // else throw new Error("Users Update Not Implemented");
+          }
+        );
 
-    reaction(
-      () => this.messages,
-      (messages, prev) => {
-        if (messages.length > prev.length)
-          database.insertMessages(_.difference(messages, prev));
-        // else if (messages.length < prev.length)
-        //   database.insertMessages(_.difference(prev, messages));
-        // else throw new Error("Messages Update Not Implemented");
-      }
-    );
+        reaction(
+          () => this.messages,
+          (messages, prev) => {
+            if (messages.length > prev.length)
+              database.insertMessages(_.difference(messages, prev));
+            // else if (messages.length < prev.length)
+            //   database.insertMessages(_.difference(prev, messages));
+            // else throw new Error("Messages Update Not Implemented");
+          }
+        );
+      });
   }
-  init() {
-    database.fetchAll<User>("users").then((users) => {
+  private async init() {
+    await database.fetchAll<User>("users").then((users) => {
       this.users = users;
     });
 
-    database.fetchAll<Message>("messages").then((messages) => {
+    await database.fetchAll<Message>("messages").then((messages) => {
       this.messages = messages;
     });
+
   }
+
+  
+
   get admin() {
     return this.#admin;
   }

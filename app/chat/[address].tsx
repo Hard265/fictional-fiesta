@@ -4,7 +4,7 @@ import { Stack, router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
 import { useColorScheme } from "nativewind";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, SectionList, Text, TextInput, View } from "react-native";
 import theme from "../../misc/theme";
 import { Message } from "../../types/chat";
@@ -18,12 +18,13 @@ export default observer(() => {
     const [input, setInput] = React.useState('')
     const inputRef = React.createRef<TextInput>()
 
+    useEffect(()=>{},[])
+
     const user = address ? store.getUser(address as string) : store.admin;
     if (!user) return null
 
-    const messages = store.messages.filter((message) => {
-        return (_.isEqual(message.sender, store.admin) && _.isEqual(message.receiver, user)) || (_.isEqual(message.receiver, store.admin) && _.isEqual(message.sender, user))
-    })
+    const messages = store.chats[user.address]
+
     const sections = _.map(
         _.groupBy(
             _.sortBy(

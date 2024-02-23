@@ -29,6 +29,8 @@ class Database {
             created TEXT DEFAULT CURRENT_TIMESTAMP
           );
 
+          INSERT OR IGNORE INTO users (address, displayName, publicKey) VALUES ('ee3c5216-3152-473a-8f17-c4adf8ba7bba', 'Me', 'key');
+
           CREATE TABLE IF NOT EXISTS messages (
             id TEXT PRIMARY KEY,
             sender TEXT NOT NULL,
@@ -58,6 +60,16 @@ class Database {
     for (const user of users) {
       await this.db?.runAsync("DELETE FROM users WHERE address = ?", [user.address]);
     };
+  }
+
+  async retrieveMessages(user: User, admin: User, range: number | null): Promise<Message[]> {
+    if (!this.db) return []
+    return await this.db.getAllAsync("SELECT * FROM messages WHERE (sender = ? AND receiver = ?) OR (receiver = ? AND sender = ?)",
+      admin.address,
+      user.address,
+      admin.address,
+      user.address
+    );
   }
 
   async insertMessages(messages: Message[]) {
