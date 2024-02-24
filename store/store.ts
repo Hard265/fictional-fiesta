@@ -33,7 +33,7 @@ class Store {
     }
 
     pushMessages(messages: Message[]){
-         this.messages = _.union(this.messages, messages);
+         this.messages = _.uniqBy(_.concat(this.messages, messages), 'id');
     }
 
     sliceMessages(messages:Message[]){

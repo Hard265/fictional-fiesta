@@ -12,14 +12,14 @@ type modals = 'deletion' | 'block' | null;
 export default observer(() => {
     const { address } = useLocalSearchParams()
 
-    const user = address ? store.getUser(address as string) : store.admin;
+    const user = address ? _.find(store.users, ['address', address]) : store.admin;
     const title = user?.displayName || user?.address;
 
     const [modal, setModal] = useState<modals>(null)
 
     const handleDeletion = () => {
-        router.replace('/chat');
-        if (user) store.deleteUser(user);
+        // router.replace('/chat');
+        // if (user) store.sliceUsers([user]);
     }
 
     const dismissModals = () => setModal(null)

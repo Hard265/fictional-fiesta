@@ -40,7 +40,7 @@ export default observer(() => {
         setup();
     }, [])
 
-    const messages = _.filter(_.uniq(store.messages), (message) => {
+    const messages = _.filter(store.messages, (message) => {
         return (_.isEqual(message.sender, user.address) && _.isEqual(message.receiver, store.admin.address)) || (_.isEqual(message.receiver, user.address) && _.isEqual(message.sender, store.admin.address))
     })
 
@@ -96,7 +96,7 @@ export default observer(() => {
                 // headerLeft: _.isEmpty(selected) ? undefined : (props) => (<Feather name="x" color={props.tintColor} size={24} />),
                 headerRight(props) {
                     return (
-                        <Feather name="user" size={24} color={props.tintColor} />
+                        <Feather name="user" size={24} color={props.tintColor} onPress={()=>router.push(`chat/user?address=${user.address}`)}/>
                     )
                 },
             }} />
