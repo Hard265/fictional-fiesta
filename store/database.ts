@@ -12,7 +12,7 @@ class Database {
     this.init();
   }
 
-  private async init() {
+  async init() {
     this.db = await openDatabaseAsync('test_2.db');
     await this.createTables();
   }
@@ -43,9 +43,15 @@ class Database {
     `);
   }
 
-  async fetchAll<T>(table: schemes): Promise<T[]> {
-    return this.db ? await this.db.getAllAsync(`SELECT * FROM ${table}`) : [];
+  async getAll<T>(table: schemes): Promise<T[]> {
+    const results = await this.db?.getAllAsync(`SELECT * FROM users`) as T[];
+    console.log(this.db);
+    
+    // return this.db ? results : [];
+    return [];
+
   }
+
 
   async insertUsers(users: User[]) {
     if (!this.db) return [];
@@ -62,7 +68,7 @@ class Database {
     };
   }
 
-  async retrieveMessages(user: User, admin: User, range: number | null): Promise<Message[]> {
+  async retrieveMessages(user: User, admin: User): Promise<Message[]> {
     if (!this.db) return []
     return await this.db.getAllAsync("SELECT * FROM messages WHERE (sender = ? AND receiver = ?) OR (receiver = ? AND sender = ?)",
       admin.address,

@@ -3,8 +3,8 @@ import { User } from "./auth";
 type Message = {
     id: string;
     timestamp: string;
-    sender: User;
-    receiver: User;
+    sender: string;
+    receiver: string;
     content: string;
 }
 

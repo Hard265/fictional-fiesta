@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   Modal,
@@ -27,6 +27,8 @@ import theme from "../../misc/theme";
 import store from "../../store/store";
 import { observer } from "mobx-react";
 import { randomUUID } from "expo-crypto";
+import { useSQLiteContext } from "expo-sqlite/next";
+import { Database } from "../../store/adapter";
 
 type modalT = "finder" | "contacts" | "qrscanner" | null;
 
@@ -35,16 +37,32 @@ export default observer(() => {
   const [query, setQuery] = useState("false");
   const [modal, setModal] = useState<modalT>(null);
 
-  const handleScannedQR = ({ data }: { data: string }) => {};
+  const db = useSQLiteContext();
+
+  useEffect(() => {
+    async function setup() {
+      const results = await db.getAllAsync('SELECT * FROM users') as User[];
+      store.pushUsers(results)
+    }
+    setup()
+  }, [])
 
   const data =
     !_.isEmpty(query) && modal === "finder"
       ? _.filter(store.users, (user) =>
-          user.displayName
-            ? user.displayName.toLowerCase().includes(query.toLowerCase())
-            : false
-        )
+        user.displayName
+          ? user.displayName.toLowerCase().includes(query.toLowerCase())
+          : false
+      )
       : store.users;
+
+  function handleAddUser(): void {
+    Database.pushUsers(db, [{
+      address: randomUUID(),
+      publicKey: randomUUID(),
+      displayName: ["Mr Namakhwa", 'Santos Runolfsdottir', 'Mrs. Valerie Runte', 'Shannon Heller', 'Dorothy Abshire'][_.random(4, false)],
+    }])
+  }
 
   return (
     <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">
@@ -81,7 +99,7 @@ export default observer(() => {
       />
       <FlatList
         className="flex-1 w-full"
-        data={_.filter(data, (user) => user.address !== store.admin.address)}
+        data={data}
         renderItem={renderUser}
         keyExtractor={(item) => item.address}
         ListEmptyComponent={renderUsersEmpty}
@@ -119,13 +137,7 @@ export default observer(() => {
             exiting={ZoomOut}
           >
             <TapGestureHandler
-              onActivated={() =>
-                store.addUser({
-                  address: randomUUID(),
-                  publicKey: randomUUID(),
-                  displayName: "Mr Namakhwa",
-                })
-              }
+              onActivated={handleAddUser}
             >
               <Feather name="plus" size={24} color={theme[colorScheme].bg} />
             </TapGestureHandler>
