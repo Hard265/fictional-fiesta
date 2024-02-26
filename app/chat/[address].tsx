@@ -51,7 +51,7 @@ export default observer(() => {
   if (!user)
     return (
       <View className="flex-1 flex h-full items-center justify-center dark:bg-black">
-        <Progress.Circle size={30} indeterminate={true} />
+        <Text className="text-4xl font-black dark:text-gray-400">loading</Text>
       </View>
     );
 
