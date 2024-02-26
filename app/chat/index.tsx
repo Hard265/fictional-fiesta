@@ -175,7 +175,6 @@ function renderUser({ item }: { item: User }) {
           outputRange: [200, 0],
           extrapolate: "identity",
         });
-        console.log(scale);
 
         return (
           <Animated.View
