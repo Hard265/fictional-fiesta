@@ -12,12 +12,13 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { TapGestureHandler } from "react-native-gesture-handler";
+import { Swipeable, TapGestureHandler } from "react-native-gesture-handler";
 import Animated, {
   SlideInDown,
   SlideOutDown,
   ZoomIn,
   ZoomOut,
+  useSharedValue,
 } from "react-native-reanimated";
 // import ScanQRBottomsheet from "../../components/ScanQRBottomsheet";
 // import ScanQRCodePrompt from "../../components/ScanQRCodePrompt";
@@ -29,39 +30,49 @@ import { observer } from "mobx-react";
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite/next";
 import { Database } from "../../store/adapter";
+import ContactsModal from "../../components/Users";
+import Users from "../../components/Users";
 
 type modalT = "finder" | "contacts" | "qrscanner" | null;
 
 export default observer(() => {
   const { colorScheme } = useColorScheme();
-  const [query, setQuery] = useState("false");
+  const [query, setQuery] = useState("");
   const [modal, setModal] = useState<modalT>(null);
 
   const db = useSQLiteContext();
 
   useEffect(() => {
     async function setup() {
-      const results = await db.getAllAsync('SELECT * FROM users') as User[];
-      store.pushUsers(results)
+      const results = (await db.getAllAsync("SELECT * FROM users")) as User[];
+      store.pushUsers(results);
     }
-    setup()
-  }, [])
+    setup();
+  }, []);
 
   const data =
     !_.isEmpty(query) && modal === "finder"
       ? _.filter(store.users, (user) =>
-        user.displayName
-          ? user.displayName.toLowerCase().includes(query.toLowerCase())
-          : false
-      )
+          user.displayName
+            ? user.displayName.toLowerCase().includes(query.toLowerCase())
+            : false
+        )
       : store.users;
 
   function handleAddUser(): void {
-    Database.pushUsers(db, [{
-      address: randomUUID(),
-      publicKey: randomUUID(),
-      displayName: ["Mr Namakhwa", 'Santos Runolfsdottir', 'Mrs. Valerie Runte', 'Shannon Heller', 'Dorothy Abshire'][_.random(4, false)],
-    }])
+    Database.pushUsers(db, [
+      {
+        address: randomUUID(),
+        publicKey: randomUUID(),
+        displayName: [
+          "Mr Namakhwa",
+          "Santos Runolfsdottir",
+          "Mrs. Valerie Runte",
+          "Shannon Heller",
+          "Dorothy Abshire",
+        ][_.random(4, false)],
+      },
+    ]);
   }
 
   return (
@@ -136,59 +147,13 @@ export default observer(() => {
             entering={ZoomIn}
             exiting={ZoomOut}
           >
-            <TapGestureHandler
-              onActivated={handleAddUser}
-            >
+            <TapGestureHandler onActivated={handleAddUser}>
               <Feather name="plus" size={24} color={theme[colorScheme].bg} />
             </TapGestureHandler>
           </Animated.View>
         </>
       )}
-      <Modal
-        animationType="slide"
-        visible={modal === "contacts"}
-        transparent
-        statusBarTranslucent
-        onRequestClose={() => setModal(null)}
-      >
-        <Pressable style={StyleSheet.absoluteFill} className="bg-black/75" />
-        <View>
-          <FlatList
-            className="flex-1 w-full"
-            data={store.users}
-            renderItem={({ item }: { item: User }) => {
-              return (
-                <>
-                  <Pressable
-                    onPress={() => {
-                      setModal(null);
-                      router.push(`/chat/${item.address}`);
-                    }}
-                    className="flex flex-row items-center gap-4 px-4 py-1"
-                  >
-                    <View className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                      <Text className="font-medium text-gray-600 dark:text-gray-300">
-                        {(item.displayName || item.address)
-                          .substring(0, 2)
-                          .toLocaleUpperCase()}
-                      </Text>
-                    </View>
-                    <View>
-                      <Text className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                        {item.displayName}
-                      </Text>
-                      <Text className="text-sm text-gray-500 truncate dark:text-gray-400">
-                        {item.address}
-                      </Text>
-                    </View>
-                  </Pressable>
-                </>
-              );
-            }}
-            keyExtractor={(item) => item.address}
-          />
-        </View>
-      </Modal>
+      {modal === "contacts" && <Users onRequestClose={() => setModal(null)} />}
       {/* <ScanQRBottomsheet visible={modal === 'qrscanner'} onScanQR={handleScannedQR} onRequestClose={() => setModal(null)} /> */}
       {/* <ScanQRCodePrompt isOpen={saveUserPromptShown} onRequestClose={() => setSaveUserPromptShown(false)} onConfirm={() => setSaveUserPromptShown(false)} /> */}
       <StatusBar style="auto" />
@@ -203,7 +168,30 @@ function renderUser({ item }: { item: User }) {
     .toLocaleUpperCase();
 
   return (
-    <>
+    <Swipeable
+      renderRightActions={(progress, dragX) => {
+        const scale = dragX.interpolate({
+          inputRange: [-200, 0],
+          outputRange: [200, 0],
+          extrapolate: "identity",
+        });
+        console.log(scale);
+
+        return (
+          <Animated.View
+            style={{
+              backgroundColor: "red",
+              width: "100%",
+              justifyContent: "center",
+              transform: [{ translateX: _.toFinite(scale) }],
+            }}
+          >
+            <Text>delete</Text>
+          </Animated.View>
+        );
+      }}
+      rightThreshold={-200}
+    >
       <Pressable
         className="flex flex-row gap-4 px-4 py-1"
         onPress={handlePress}
@@ -228,7 +216,7 @@ function renderUser({ item }: { item: User }) {
           )}
         </View>
       </Pressable>
-    </>
+    </Swipeable>
   );
 }
 

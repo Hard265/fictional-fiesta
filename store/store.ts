@@ -25,7 +25,7 @@ class Store {
     }
 
     pushUsers(users:User[]){
-        this.users = _.concat(this.users,  _.difference(users, this.users));
+        this.users = _.uniqBy(_.concat(this.users,  users), 'address');
     }
 
     sliceUsers(users:User[]){
