@@ -26,7 +26,7 @@ export default function Combobox({ onChangeText }: ComboboxProps) {
   };
 
   return (
-    <View className="flex flex-row flex-wrap w-full gap-1 p-2 rounded-xl shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900">
+    <View className="flex flex-row flex-wrap w-full gap-1 p-2 items-center rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 dark:focus:border-gray-400 bg-white dark:bg-gray-900 ">
       {_.map(chips, (chip, index) => (
         <View
           key={index}
@@ -51,7 +51,7 @@ export default function Combobox({ onChangeText }: ComboboxProps) {
         <TextInput
           placeholder={"word " + (_.size(chips) + 1)}
           placeholderTextColor="#6B7280"
-          className="mix-w-[80px] flex-1 text-gray-900 dark:text-gray-100"
+          className="shrink-0 flex-1 text-gray-900 dark:text-gray-100"
           ref={inputRef}
           value={input}
           autoCorrect={false}

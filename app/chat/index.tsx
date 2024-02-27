@@ -32,6 +32,7 @@ import { useSQLiteContext } from "expo-sqlite/next";
 import { Database } from "../../store/adapter";
 import ContactsModal from "../../components/Users";
 import Users from "../../components/Users";
+import ChatListItem from "../../components/ChatListItem";
 
 type modalT = "finder" | "contacts" | "qrscanner" | null;
 
@@ -111,7 +112,7 @@ export default observer(() => {
       <FlatList
         className="flex-1 w-full"
         data={data}
-        renderItem={renderUser}
+        renderItem={ChatListItem}
         keyExtractor={(item) => item.address}
         ListEmptyComponent={renderUsersEmpty}
       />
@@ -160,64 +161,6 @@ export default observer(() => {
     </View>
   );
 });
-
-function renderUser({ item }: { item: User }) {
-  const handlePress = () => router.push(`/chat/${item.address}`);
-  const preffix = (item.displayName || item.address)
-    .substring(0, 2)
-    .toLocaleUpperCase();
-
-  return (
-    <Swipeable
-      renderRightActions={(progress, dragX) => {
-        const scale = dragX.interpolate({
-          inputRange: [-200, 0],
-          outputRange: [200, 0],
-          extrapolate: "identity",
-        });
-
-        return (
-          <Animated.View
-            style={{
-              backgroundColor: "red",
-              width: "100%",
-              justifyContent: "center",
-              transform: [{ translateX: _.toFinite(scale) }],
-            }}
-          >
-            <Text>delete</Text>
-          </Animated.View>
-        );
-      }}
-      rightThreshold={-200}
-    >
-      <Pressable
-        className="flex flex-row gap-4 px-4 py-1"
-        onPress={handlePress}
-      >
-        <View className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-          <Text className="font-medium text-gray-600 dark:text-gray-300">
-            {preffix}
-          </Text>
-        </View>
-        <View>
-          <Text className="text-sm font-medium text-gray-900 truncate dark:text-white">
-            {item.displayName || item.address}
-          </Text>
-          {item.displayName && (
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              className="text-sm text-gray-500 truncate dark:text-gray-400"
-            >
-              {item.address}
-            </Text>
-          )}
-        </View>
-      </Pressable>
-    </Swipeable>
-  );
-}
 
 function renderUsersEmpty() {
   return (

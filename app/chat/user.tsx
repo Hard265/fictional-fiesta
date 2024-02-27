@@ -8,15 +8,19 @@ import Prompt from "../../components/Prompt";
 import { useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite/next";
 import { User } from "../../types/auth";
+import { Feather } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import QRCode from "react-qr-code";
 
 type modals = "deletion" | "block" | null;
 
 export default observer(() => {
   const { address } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const db = useSQLiteContext();
 
   const [modal, _modal] = useState<modals>();
-  const [_user, _setUser] = useState<User | null>(null);
+  const [user, _user] = useState<User | null>(null);
 
   useEffect(() => {
     async function setup() {
@@ -24,15 +28,22 @@ export default observer(() => {
         "SELECT * FROM users WHERE address = ?",
         _.toString(address)
       );
-      _setUser(results);
+      _user(results);
     }
     setup();
   }, []);
 
-  if (!_user) return null;
+  if (!user) return null;
 
   return (
-    <View className="flex-1 justify-end p-4 dark:bg-black">
+    <View className="flex-1 justify-end p-2 dark:bg-black">
+      <View className="mb-auto flex flex-row gap-x-2 p-4">
+        <QRCode size={128} value={`${user.address}?key=${user.publicKey}`} />
+
+        <Text numberOfLines={1} ellipsizeMode="middle" className="flex-1 items-center text-sm font-semibold dark:text-white">
+          {user.address} <Feather name="clipboard" size={20} />
+        </Text>
+      </View>
       <Options title="Data Management">
         <Option label="Export Data" icon="download-cloud" isTrailing />
       </Options>
@@ -56,11 +67,15 @@ export default observer(() => {
         >
           Delete{" "}
           <Text className="font-semibold">
-            {_user.displayName || _user.address}
+            {user.displayName || user.address}
           </Text>
         </Text>
       </Pressable>
-      <Stack.Screen options={{ title: _user.displayName || _user.address }} />
+      <Stack.Screen
+        options={{
+          title: user.displayName || user.address,
+        }}
+      />
     </View>
   );
 
