@@ -1,58 +1,58 @@
-import { useColorScheme } from "nativewind";
 import React from "react";
-import { ColorSchemeName, Pressable, Text } from "react-native";
+import { Pressable } from "react-native";
+import { PressableProps } from "react-native/Libraries/Components/Pressable/Pressable";
+import { Heading } from "./Text";
 
-type variants = 'tonal' | 'filled'
+type variants = "outlined" | "filled";
 
-type Btn = {
-    [key in variants]: {
-        [key in 'light' | 'dark']: {
-            [key in 'container' | 'text']: number;
-        };
-    };
-};
-
-interface BtnProps {
-    children: React.ReactNode;
-    color: string;
-    variant: variants;
-    className: string;
-    onPress: () => void
+//interface extend PressableProps
+interface ButtonProps extends PressableProps {
+  children: React.ReactNode;
+  color?:
+    | "red"
+    | "orange"
+    | "amber"
+    | "yellow"
+    | "lime"
+    | "green"
+    | "emerald"
+    | "teal"
+    | "cyan"
+    | "sky"
+    | "blue"
+    | "indigo"
+    | "violet"
+    | "purple"
+    | "fuchsia"
+    | "pink"
+    | "rose"
+    | "stone"
+    | "neutral"
+    | "zinc"
+    | "gray"
+    | "slate";
+  onPress: () => void;
+  variant?: variants;
 }
 
-const Btns: Btn = {
-    filled: {
-        light: {
-            container: 800,
-            text: 50
-        },
-        dark: {
-            container: 50,
-            text: 900
-        }
-    },
-    tonal: {
-        light: {
-            container: 500,
-            text: 900
-        },
-        dark: {
-            container: 600,
-            text: 50
-        }
-    }
-}
-
-export default function Button({ children, color, className, variant, onPress }: BtnProps) {
-    const { colorScheme } = useColorScheme()
-
-    const container = `bg-${color}-${Btns[variant][colorScheme].container}`;
-    const text = `text-${color}-${Btns[variant][colorScheme].text}`;
-
-
-    return (
-        <Pressable className={`flex flex-row justify-center w-full px-4 py-2.5 mt-4 rounded-lg items-center ${container}`}>
-            <Text className={`font-medium ${text}`} ellipsizeMode="tail" numberOfLines={1} >{children}</Text>
-        </Pressable>
-    )
+export default function Button({
+  children,
+  color = "gray",
+  variant = "outlined",
+  ...props
+}: ButtonProps) {
+  return (
+    <Pressable
+      className={`border border-${color}-800 bg-${color}-900 dark:border-${color}-100 dark:bg-${color}-50 flex flex-row justify-center w-full p-4 rounded-lg items-center`}
+      {...props}
+    >
+      <Heading
+        className={`text-sm text-${color}-100 dark:text-${color}-900`}
+        ellipsizeMode="tail"
+        numberOfLines={1}
+      >
+        {children}
+      </Heading>
+    </Pressable>
+  );
 }

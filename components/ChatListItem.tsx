@@ -28,7 +28,7 @@ export default function ChatListItem({ item }: ChatListItemProps) {
           </Text>
         </View>
         <View>
-          <Text className="text-sm font-medium text-gray-900 truncate dark:text-white">
+          <Text className="text-sm font-medium text-gray-900 dark:text-white">
             {item.displayName || item.address}
           </Text>
           {item.displayName && (
