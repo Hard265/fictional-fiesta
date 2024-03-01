@@ -6,7 +6,6 @@
     "email": "hardynamakhwa@gmail.com",
     "url": "https://github.com/Hard265"
   },
-  "os": ["android", "iOS"],
   "homepage": "https://github.com/Hard265/fictional-fiesta",
   "version": "1.0.0",
   "main": "expo-router/entry",
