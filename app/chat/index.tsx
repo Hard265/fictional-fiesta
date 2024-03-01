@@ -71,7 +71,7 @@ export default observer(() => {
     <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">
       <Stack.Screen
         options={{
-          title: "Kasual",
+          title: "Kloak",
           headerRight(props) {
             return (
               <>
