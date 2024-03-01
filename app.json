@@ -31,7 +31,8 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT"
-      ]
+      ],
+      "package": "com.hard265.kloak"
     },
     "web": {
       "favicon": "./assets/favicon.png"
