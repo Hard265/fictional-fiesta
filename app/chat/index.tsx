@@ -36,23 +36,23 @@ export default observer(() => {
 
   useEffect(() => {
     async function setup() {
-      const results = (await db.getAllAsync("SELECT * FROM users")) as User[];
-      store.pushUsers(results);
+      store.userStore.init(db);
     }
     setup();
   }, []);
 
+
   const data =
     !_.isEmpty(query) && modal === "finder"
-      ? _.filter(store.users, (user) =>
-          user.displayName
-            ? user.displayName.toLowerCase().includes(query.toLowerCase())
-            : false
-        )
-      : store.users;
+      ? _.filter(store.userStore.users, (user) =>
+        user.displayName
+          ? user.displayName.toLowerCase().includes(query.toLowerCase())
+          : false
+      )
+      : store.userStore.users;
 
   function handleAddUser(): void {
-    Database.pushUsers(db, [
+    store.userStore.post(db,
       {
         address: randomUUID(),
         publicKey: randomUUID(),
@@ -64,7 +64,7 @@ export default observer(() => {
           "Dorothy Abshire",
         ][_.random(4, false)],
       },
-    ]);
+    );
   }
 
   return (
@@ -77,7 +77,7 @@ export default observer(() => {
               <>
                 <View className="flex flex-row gap-x-4">
                   <Feather
-                    name="book"
+                    name="users"
                     size={24}
                     color={props.tintColor}
                     onPress={() => setModal("contacts")}
@@ -89,10 +89,10 @@ export default observer(() => {
                     onPress={() => setModal("finder")}
                   />
                   <Feather
-                    name="user"
+                    name="settings"
                     size={24}
                     color={props.tintColor}
-                    onPress={() => router.push("/chat/user")}
+                    onPress={() => router.push("/chat/settings")}
                   />
                 </View>
               </>

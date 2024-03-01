@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import Combobox from "../components/Combobox";
 import { Heading, Text } from "../components/Text";
@@ -8,6 +8,7 @@ import Button from "../components/Button";
 
 export default function Page() {
   const [mnemonic, _mnemonic] = useState<string>("");
+
 
   const handleMnemonicChange = (value: string) => {
     _mnemonic(value);

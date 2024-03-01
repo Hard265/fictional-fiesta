@@ -32,17 +32,17 @@ export async function databaseInitHandler(db: SQLiteDatabase) {
 
 
 export class Database {
-    static async pushMessages(db: SQLiteDatabase, messages: Message[]) {
-        for (const message of messages) {
-            await db.runAsync("INSERT INTO messages (id, sender, receiver, content, timestamp) VALUES (?, ?, ?, ?, ?)", message.id, message.sender, message.receiver, message.content, message.timestamp)
-        }
-        store.pushMessages(messages);
-    }
+    // static async pushMessages(db: SQLiteDatabase, messages: Message[]) {
+    //     for (const message of messages) {
+    //         await db.runAsync("INSERT INTO messages (id, sender, receiver, content, timestamp) VALUES (?, ?, ?, ?, ?)", message.id, message.sender, message.receiver, message.content, message.timestamp)
+    //     }
+    //     store.pushMessages(messages);
+    // }
 
-    static async pushUsers(db: SQLiteDatabase, users: User[]) {
-        for (const user of users) {
-            await db.runAsync("INSERT INTO users (address, displayName, publicKey) VALUES (?, ?, ?)", user.address, user.displayName || '', user.publicKey)
-        }
-        store.pushUsers(users);
-    }
+    // static async pushUsers(db: SQLiteDatabase, users: User[]) {
+    //     for (const user of users) {
+    //         await db.runAsync("INSERT INTO users (address, displayName, publicKey) VALUES (?, ?, ?)", user.address, user.displayName || '', user.publicKey)
+    //     }
+    //     store.pushUsers(users);
+    // }
 }

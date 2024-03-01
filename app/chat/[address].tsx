@@ -7,95 +7,62 @@ import _ from "lodash";
 import { observer } from "mobx-react";
 import { useColorScheme, useTailwind } from "nativewind";
 import { createRef, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, SectionList, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, SectionList, TextInput, View } from "react-native";
 import theme from "../../misc/theme";
 import store from "../../store/store";
 import { User } from "../../types/auth";
 import { Message } from "../../types/chat";
 import { observable } from "mobx";
+import InboxShimmer from "../../components/InboxShimmer";
+import InboxEmptyPlaceholder from "../../components/InboxEmptyPlaceholder";
+import { Text } from "../../components/Text";
 
-export default function Page() {
+export default observer(() => {
     const { address, displayName } = useLocalSearchParams();
     const { colorScheme } = useColorScheme();
     const db = useSQLiteContext();
-
-    const [user, setUser] = useState<User | null>();
-
     const inputRef = createRef<TextInput>();
     const [input, _input] = useState("");
-
-    const [loading, setLoading] = useState(true);
-    const [messages, setMessages] = useState<Message[]>([]);
     const [selections, setSelections] = useState<string[]>([]);
 
     useEffect(() => {
-        async function fetchMessages() {
-            try {
-                const [userInstance, messages] = await Promise.all([
-                    db.getFirstAsync<User>(
-                        "SELECT * FROM users WHERE address = ?",
-                        _.toString(address)
-                    ),
-                    db.getAllAsync<Message>(
-                        "SELECT * FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)",
-                        [
-                            address as string,
-                            store.admin.address,
-                            store.admin.address,
-                            address as string,
-                        ]
-                    ),
-                ]);
-
-                setUser(userInstance || null);
-                setMessages(messages);
-            } catch (error) {
-                console.error("Error fetching user and messages:", error);
-            } finally {
-                setLoading(false);
-            }
+        async function setup() {
+            store.chatStore.init(db, address as string)
         }
-
-        fetchMessages();
+        setup();
     }, []);
 
+    const adminAddress = store.userStore.admin.address;
+    const messages: Message[] | undefined = store.chatStore.chats[address as string];
     const sections = _.chain(messages).sortBy("timestamp").clone().reverse().groupBy((message) => dayjs(message.timestamp).format("MMM DD, YYYY")).map((data, title) => ({ title, data })).value();
 
     const handleSubmit = async () => {
-        const message: Message = { id: randomUUID(), sender: store.admin.address, receiver: address as string, content: input, timestamp: dayjs().toISOString(), };
-
-        await db.runAsync(
-            "INSERT INTO messages (id, sender, receiver, content, timestamp) VALUES ($id, $sender, $receiver, $content, $timestamp)",
-            _.values(message)
-        );
-        setMessages(_.unionBy(messages, [message], "id"));
+        store.chatStore.post(
+            db,
+            address as string,
+            { id: randomUUID(), sender: adminAddress, receiver: address as string, content: input, timestamp: dayjs().toISOString(), })
         _input("");
         inputRef.current?.blur();
     };
 
     const handleDeleteMessages = async () => {
-        try {
-            for (const id of selections) {
-                await db.runAsync("DELETE FROM messages WHERE id = $id", { $id: id });
-            }
-        } catch (error) {
-
-        } finally {
-            setMessages(_.filter(messages, (message) => !selections.includes(message.id)));
-            setSelections([]);
+        for (const id of selections) {
+            store.chatStore.delete(db, address as string, id);
         }
+        setSelections([]);
     }
 
     return (
         <View className="flex-1 flex h-full items-center justify-center dark:bg-black">
             {
-                loading ? (
-                    <ActivityIndicator className="my-auto" size={"large"} />
+                !store.chatStore.chats[address as string] ? (
+                    <InboxShimmer />
                 ) : (
                     <SectionList
                         inverted
                         className="flex-1 flex w-full h-full flex-col"
                         sections={sections}
+                        renderSectionHeader={renderSectionHeader}
                         renderItem={({ item }: { item: Message }) => {
                             const handlePress = () => {
                                 if (!_.isEmpty(selections))
@@ -107,7 +74,7 @@ export default function Page() {
 
                             const isSelected = selections.includes(item.id);
 
-                            if (_.isEqual(item.sender, store.admin.address)) {
+                            if (_.isEqual(item.sender, adminAddress)) {
                                 return (
                                     <>
                                         <Pressable
@@ -150,13 +117,11 @@ export default function Page() {
                     />
                 )
             }
-
-
             <View className="w-full p-4 gap-x-4 flex flex-row items-end bg-white dark:bg-black">
                 <TextInput
                     ref={inputRef}
                     placeholder="Aa..."
-                    placeholderTextColor={"gray"}
+                    placeholderTextColor={"#9CA3AF"}
                     value={input}
                     onChangeText={_input}
                     className="flex-1 p-2.5 text-black dark:text-white text-sm rounded-lg bg-gray-200 border border-gray-300 focus:border-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:focus:border-gray-600"
@@ -170,7 +135,6 @@ export default function Page() {
                     <Feather name="arrow-up" size={20} color={theme[colorScheme].bg} />
                 </Pressable>
             </View>
-
             <Stack.Screen
                 options={{
                     title: (displayName || address || "") as string,
@@ -185,7 +149,7 @@ export default function Page() {
             />
         </View>
     );
-}
+})
 
 function renderSectionHeader({ section }: { section: { title: string } }) {
     return (
@@ -197,10 +161,4 @@ function renderSectionHeader({ section }: { section: { title: string } }) {
     );
 }
 
-function emptyListComponent() {
-    return (
-        <View className="flex-1 flex justify-center my-auto items-center">
-            <Text className="text-gray-500 font-medium">No message</Text>
-        </View>
-    );
-}
+

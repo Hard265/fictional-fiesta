@@ -89,15 +89,21 @@ export default function Users({
           data={search ? searchResults() : users}
           snapToEnd
           renderItem={({ item }: { item: User }) => {
+            const isSelected = _.includes(selection, item.address);
             return (
               <Pressable
                 onPress={() => handlePress(item.address)}
                 onLongPress={() => handleLongPress(item.address)}
                 className="flex flex-row items-center gap-4 px-4 py-1.5"
               >
-                <View className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                  <Text className="font-medium text-gray-600 dark:text-gray-300 uppercase">
-                    {(item.displayName || item.address).substring(0, 2)}
+                <View className={`relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600 ${isSelected && 'bg-gray-800 dark:bg-gray-50'}`}>
+                  <Text 
+                  className={` font-medium text-gray-600 dark:text-gray-300 uppercase ${isSelected && 'text-gray-100 dark:text-gray-900'}`}
+                  >
+                    {isSelected ?
+                      <Feather name='check' size={24} />
+                      : (item.displayName || item.address).substring(0, 2)
+                    }
                   </Text>
                 </View>
                 <View className="flex-1">
@@ -112,17 +118,7 @@ export default function Users({
                     {item.address}
                   </Text>
                 </View>
-                {!_.isEmpty(selection) && (
-                  <Feather
-                    name={
-                      _.includes(selection, item.address)
-                        ? "check-square"
-                        : "square"
-                    }
-                    size={20}
-                    color={theme[colorScheme].tint}
-                  />
-                )}
+
               </Pressable>
             );
           }}
@@ -133,9 +129,9 @@ export default function Users({
           <TextInput
             value={search}
             onChangeText={setSearch}
-            className="flex-1 rounded-lg p-2 placeholder:text-white border border-gray-300 focus:border-gray-400 bg-gray-200 dark:border-gray-700  dark:focus:boder-gray-600 dark:bg-gray-900"
+            className="flex-1 rounded-lg p-2.5 placeholder:text-white border border-gray-300 focus:border-gray-400 bg-gray-200 dark:border-gray-700  dark:focus:boder-gray-600 dark:bg-gray-900"
             placeholder="Find"
-            placeholderTextColor={"gray"}
+            placeholderTextColor={"#9CA3AF"}
             returnKeyType="search"
           />
           {_.isEmpty(selection) ? (

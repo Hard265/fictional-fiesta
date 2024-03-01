@@ -1,7 +1,7 @@
 import { Slot } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite/next";
-import { Suspense, useCallback } from "react";
-import { Text } from "react-native";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { databaseInitHandler } from "../store/adapter";
 import * as SplashScreen from "expo-splash-screen";
@@ -11,14 +11,26 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
+import * as LocalAuthentication from 'expo-local-authentication'
+import { Heading, Text } from "../components/Text";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const [fontsLoaded, fontError] = useFonts({
     Inter_500Medium,
     Inter_600SemiBold,
     Inter_700Bold,
+  });
+
+  useEffect(() => {
+    async function setup() {
+      const results = await LocalAuthentication.authenticateAsync({ promptMessage: 'finger print please' })
+      setIsAuthenticated(results.success)
+    };
+    setup();
   });
 
   const onLayoutRootView = useCallback(async () => {
@@ -29,6 +41,12 @@ export default function RootLayout() {
 
   if (!fontsLoaded && !fontError) {
     return null;
+  }
+
+  if (!isAuthenticated) {
+    return <View className='flex-1 justify-center items-center p-2 dark:bg-black'>
+      <Heading className='text-2xl font-medium'>Please authenticate</Heading>
+    </View>
   }
 
   return (
