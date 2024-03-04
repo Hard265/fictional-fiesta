@@ -17,20 +17,19 @@ export default function Page() {
   return (
     <View className="flex-1 flex p-4 items-center justify-end dark:bg-black">
       <View className="mt-32 mb-8">
-        <Heading className="text-center">Your seed phrase</Heading>
-        <Text className="text-center px-8 text-gray-600 dark:text-gray-400">
-          Please enter your seed phrase to recover your existing address or
-          create a new account.
+        <Text className="text-5xl text-black dark:text-white">Import your existing address</Text>
+        <Text className="text-center px-8 text-gray-500 dark:text-gray-400">
+          Get started by recovering your existing address by entering the seed phrase for the address 
         </Text>
       </View>
       <View className="w-full justify-center">
         {/* <Text className="font-semibold mb-2 dark:text-white">Seed phrase</Text> */}
         <Combobox onChangeText={handleMnemonicChange} />
-        <Button className="mt-4" onPress={() => router.push("chat/")}>
-          Import address
-        </Button>
+        <Pressable className="w-full items-center justify-center p-2.5 rounded-lg mt-auto bg-gray-800 dark:bg-gary-50 border dark:border-gray-700">
+          <Text className="text-white dark:text-black font-medium">Import address</Text>
+        </Pressable>
       </View>
-      <Pressable className="w-full items-center justify-center p-4 rounded-lg mt-auto bg-gray-800 dark:bg-gary-800 border dark:border-gray-700">
+      <Pressable className="w-full items-center justify-center p-2.5 rounded-lg mt-auto bg-gray-800 dark:bg-gary-800 border dark:border-gray-700">
         <Text className="text-gray-50 font-medium">Create new address</Text>
       </Pressable>
       <StatusBar style="auto" />
