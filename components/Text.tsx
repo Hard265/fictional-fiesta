@@ -1,37 +1,36 @@
-import { Text as DefaultText } from "react-native";
+import { useColorScheme } from "nativewind";
+import { Text } from "react-native";
 import { TextProps } from "react-native/Libraries/Text/Text";
+import Colors from 'tailwindcss/colors'
 
-export function Text({ children, ...props }: TextProps) {
-  return (
-    <DefaultText
-      className="text-black dark:text-white"
-      style={{ fontFamily: "Inter_500Medium" }}
-      {...props}
-    >
-      {children}
-    </DefaultText>
-  );
+
+interface Props extends TextProps {
+  class?: string;
 }
 
-export function Heading({ children, ...props }: TextProps) {
-  return (
-    <Text
-      className="text-black dark:text-white text-lg"
-      style={{ fontFamily: "Inter_700Bold" }}
-      {...props}
-    >
-      {children}
-    </Text>
-  );
+
+export function TextBlack({ children, style, ...props }: Props) {
+  const { colorScheme } = useColorScheme();
+  return <Text style={[{ fontFamily: "Inter_900Black", color: colorScheme === 'dark' ? Colors.gray[50] : Colors.gray[900], }, style]}>{children}</Text>;
 }
-export function SubHeading({ children, ...props }: TextProps) {
-  return (
-    <Text
-      className="text-black dark:text-white text-base"
-      style={{ fontFamily: "Inter_600SemiBold" }}
-      {...props}
-    >
-      {children}
-    </Text>
-  );
+
+export function TextRegular({ children, style, ...props }: Props) {
+  const { colorScheme } = useColorScheme();
+  return <Text style={[{ fontFamily: "Inter_400Regular", color: colorScheme === 'dark' ? Colors.gray[50] : Colors.gray[900], }, style]}>{children}</Text>;
 }
+
+export function TextSemiBold({ children, style, ...props }: Props) {
+  const { colorScheme } = useColorScheme();
+  return <Text style={[{ fontFamily: "Inter_600SemiBold", color: colorScheme === 'dark' ? Colors.gray[50] : Colors.gray[900], }, style]}>{children}</Text>;
+}
+
+export function TextBold({ children, style, ...props }: Props) {
+  const { colorScheme } = useColorScheme();
+  return <Text style={[{ fontFamily: "Inter_700Bold", color: colorScheme === 'dark' ? Colors.gray[50] : Colors.gray[900], }, style]}>{children}</Text>;
+}
+
+export function TextMedium({ children, style, ...props }: Props) {
+  const { colorScheme } = useColorScheme();
+  return <Text style={[{ fontFamily: "Inter_500Medium", color: colorScheme === 'dark' ? Colors.gray[50] : Colors.gray[900], }, style]}>{children}</Text>;
+}
+

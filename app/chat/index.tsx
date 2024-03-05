@@ -17,13 +17,13 @@ import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite/next";
 import { observer } from "mobx-react";
 import { useColorScheme } from "nativewind";
-import ChatListItem from "../../components/ChatListItem";
 import Users from "../../components/Users";
 import theme from "../../misc/theme";
-import { Database } from "../../store/adapter";
 import store from "../../store/store";
 import { User } from "../../types/auth";
-import { SubHeading, Text } from "../../components/Text";
+import { TextBlack, TextBold, TextMedium } from "../../components/Text";
+import { Avatar, List } from "react-native-paper";
+import { TextButtonStyle } from "../../misc/styles";
 
 type modalT = "finder" | "contacts" | "qrscanner" | null;
 
@@ -41,30 +41,27 @@ export default observer(() => {
     setup();
   }, []);
 
-
   const data =
     !_.isEmpty(query) && modal === "finder"
       ? _.filter(store.userStore.users, (user) =>
-        user.displayName
-          ? user.displayName.toLowerCase().includes(query.toLowerCase())
-          : false
-      )
+          user.displayName
+            ? user.displayName.toLowerCase().includes(query.toLowerCase())
+            : false
+        )
       : store.userStore.users;
 
   function handleAddUser(): void {
-    store.userStore.post(db,
-      {
-        address: randomUUID(),
-        publicKey: randomUUID(),
-        displayName: [
-          "Mr Namakhwa",
-          "Santos Runolfsdottir",
-          "Mrs. Valerie Runte",
-          "Shannon Heller",
-          "Dorothy Abshire",
-        ][_.random(4, false)],
-      },
-    );
+    store.userStore.post(db, {
+      address: randomUUID(),
+      publicKey: randomUUID(),
+      displayName: [
+        "Mr Namakhwa",
+        "Santos Runolfsdottir",
+        "Mrs. Valerie Runte",
+        "Shannon Heller",
+        "Dorothy Abshire",
+      ][_.random(4, false)],
+    });
   }
 
   return (
@@ -100,10 +97,34 @@ export default observer(() => {
           },
         }}
       />
-      <Text></Text>
       <FlatList
         data={data}
-        renderItem={renderItem}
+        className="w-full"
+        contentContainerStyle={{ alignItems: "flex-start" }}
+        renderItem={({ item }: { item: User }) => {
+          return (
+            <List.Item
+              onPress={() =>
+                router.push(
+                  `chat/${item.address}?displayName=${item.displayName}`
+                )
+              }
+              title={item.displayName || item.address}
+              description={item.address}
+              className="py-0"
+              left={() => (
+                <Avatar.Text
+                  size={40}
+                  className="ml-2 bg-gray-100 dark:bg-gray-600"
+                  labelStyle={[TextButtonStyle]}
+                  label={(item.displayName || item.address)
+                    .substring(0, 2)
+                    .toLocaleUpperCase()}
+                />
+              )}
+            />
+          );
+        }}
         keyExtractor={(item) => item.address}
       />
       {modal === "finder" ? (
@@ -155,50 +176,3 @@ export default observer(() => {
     </View>
   );
 });
-
-function renderItem({ item }: { item: User }) {
-  return (
-    <Swipeable>
-      <Pressable
-        className="flex flex-row gap-4 px-4 py-1"
-        onPress={() =>
-          router.push(`chat/${item.address}?displayName=${item.displayName}`)
-        }
-      >
-        <View className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-          <Text className="font-medium text-gray-600 dark:text-gray-300 uppercase">
-            {(item.displayName || item.address).substring(0, 2)}
-          </Text>
-        </View>
-        <View>
-          <SubHeading
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            className="text-gray-900 dark:text-white"
-          >
-            {item.displayName || item.address}
-          </SubHeading>
-          {item.displayName && (
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              className="text-gray-500 dark:text-gray-400"
-            >
-              {item.address}
-            </Text>
-          )}
-        </View>
-      </Pressable>
-    </Swipeable>
-  );
-}
-
-function renderUsersEmpty() {
-  return (
-    <>
-      <View className="flex-1 items-center justify-center">
-        <Text>No users</Text>
-      </View>
-    </>
-  );
-}
