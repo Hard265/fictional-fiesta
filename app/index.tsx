@@ -1,16 +1,21 @@
-import { router } from "expo-router";
+import { router, Redirect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { Pressable, TextStyle, View } from "react-native";
-import { TextBlack, TextMedium, TextSemiBold } from "../components/Text";
 import { Button, Chip, TextInput, useTheme } from "react-native-paper";
-import { TextButtonStyle } from "../misc/styles";
 import _ from "lodash";
+
+import { TextButtonStyle } from "../misc/styles";
+import { TextBlack, TextMedium, TextSemiBold } from "../components/Text";
 
 export default function Page() {
   const [mnemonic, _mnemonic] = useState("");
   
   const theme = useTheme();
+
+  if(store.userStore.admin){
+    return <Redirect href="/chat" />
+  }
 
   return (
     <View className="flex-1 flex p-4 items-center justify-end dark:bg-black">
