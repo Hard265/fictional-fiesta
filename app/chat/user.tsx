@@ -11,13 +11,13 @@ import { User } from "../../types/auth";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import QRCode from "react-qr-code";
-import { Button, Card, Portal, useTheme } from "react-native-paper";
-import { TextSemiBold } from "../../components/Text";
+import { Button, Card, Modal, Portal, useTheme } from "react-native-paper";
+import { TextMedium, TextSemiBold } from "../../components/Text";
 import { TextButtonStyle } from "../../misc/styles";
 import Shimmer from "../../components/Shimmer";
 
 enum Dialog {
-  DELETEUSER
+  DELETEUSER_CONFIRM,
 }
 
 export default observer(() => {
@@ -26,7 +26,7 @@ export default observer(() => {
   const db = useSQLiteContext();
   const theme = useTheme();
 
-  const [modal, _modal] = useState<modals>();
+  const [modal, _modal] = useState<Dialog>();
   const [user, _user] = useState<User | null>(null);
 
   useEffect(() => {
@@ -48,22 +48,14 @@ export default observer(() => {
           <Shimmer className="rounded-lg self-center bg-gray-300 dark:bg-gray-900 my-0.5 flex-1 mb-auto h-8" />
         </View>
       ) : (
-        <View className="mb-auto flex flex-row gap-x-2">
-          <Card mode="outlined" className="rounded-lg p-1 h-32 w-32 flex items-center justify-center">
-            <Card.Content className="">
-              <QRCode
-                size={96}
-                value={`${user.address}?key=${user.publicKey}`}
-              />
-            </Card.Content>
-          </Card>
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="middle"
-            className="flex-1 items-center text-sm font-semibold dark:text-white"
-          >
-            {user.address} <Feather name="clipboard" size={20} />
-          </Text>
+        <View className="flex flex-row gap-x-2 mb-auto">
+          <View className="bg-white p-2 ">
+            <QRCode
+              value={`klk://kloak.io/${user.address}/?publicKey=${user.publicKey}`}
+              size={96}
+            />
+          </View>
+          <TextMedium className="flex-1">{user.address}</TextMedium>
         </View>
       )}
       <Options title="Data Management">
@@ -71,12 +63,7 @@ export default observer(() => {
       </Options>
       <Options title="Privacy Controls">
         <Option label="Mute notifications" icon="toggle-left" />
-        <Option
-          label="Block"
-          icon="toggle-left"
-          isTrailing
-          onTap={() => _modal("block")}
-        />
+        <Option label="Block" icon="toggle-left" isTrailing />
       </Options>
 
       <Button
@@ -90,7 +77,9 @@ export default observer(() => {
         Delete {displayName || address}
       </Button>
       <Portal>
-        <Modal visibale={modal === Dialog.DELETEUSER}></Modal>
+        <Modal visible={modal === Dialog.DELETEUSER_CONFIRM}>
+          <Text>Example Modal. Click outside this area to dismiss.</Text>
+        </Modal>
       </Portal>
       <Stack.Screen
         options={{

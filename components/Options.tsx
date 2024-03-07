@@ -2,8 +2,8 @@ import { Feather } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import React from 'react';
 import { View, Pressable } from 'react-native';
-import theme from '../misc/theme';
 import { TextMedium, TextSemiBold } from './Text';
+import { useTheme } from 'react-native-paper';
 
 interface OptionsProps {
     title: string;
@@ -30,12 +30,12 @@ export function Options({ title, children }: OptionsProps) {
 
 
 export function Option({ label, icon, isTrailing = false, onTap }: OptionProps) {
-    const { colorScheme } = useColorScheme()
+    const theme = useTheme()
     return <>
         <Pressable onPress={onTap} className={"flex flex-row px-4 py-3 justify-between " + (!isTrailing && 'border-b border-gray-300 dark:border-gray-700')}>
             <TextMedium className="dark:text-white capitalize">{label}</TextMedium>
             {/**@ts-ignore */}
-            <Feather name={icon} size={20} color={theme[colorScheme].tint} />
+            <Feather name={icon} size={20} color={theme.colors.onBackground} />
         </Pressable>
     </>
 }

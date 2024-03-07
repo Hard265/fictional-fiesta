@@ -5,12 +5,14 @@ import { Stack, router, useLocalSearchParams } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite/next";
 import _ from "lodash";
 import { observer } from "mobx-react";
-import { useColorScheme, useTailwind } from "nativewind";
+import { useColorScheme } from "nativewind";
 import { createRef, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
   SectionList,
+  Text,
+  TextInput,
   TextInput as TextInputType,
   View,
 } from "react-native";
@@ -20,21 +22,16 @@ import { Message } from "../../types/chat";
 import { observable } from "mobx";
 import InboxShimmer from "../../components/InboxShimmer";
 import InboxEmptyPlaceholder from "../../components/InboxEmptyPlaceholder";
-import { TextMedium } from "../../components/Text";
-import {
-  Card,
-  IconButton,
-  TextInput,
-  useTheme,
-  Text,
-} from "react-native-paper";
+import { TextMedium, TextRegular } from "../../components/Text";
+import colors from "tailwindcss/colors";
+import { useSession } from "../../hooks/auth";
+import useMessageState from "../../hooks/useMessageState";
 
 export default observer(() => {
   const { address, displayName } = useLocalSearchParams();
-
-  const { colorScheme } = useColorScheme();
   const db = useSQLiteContext();
-  const theme = useTheme();
+  const { session } = useSession();
+
   const inputRef = createRef<TextInputType>();
   const [input, _input] = useState("");
   const [selections, setSelections] = useState<string[]>([]);
@@ -46,7 +43,6 @@ export default observer(() => {
     setup();
   }, []);
 
-  const adminAddress = store.userStore.admin.address;
   const messages: Message[] | undefined =
     store.chatStore.chats[address as string];
   const sections = _.chain(messages)
@@ -60,7 +56,7 @@ export default observer(() => {
   const handleSubmit = async () => {
     store.chatStore.post(db, address as string, {
       id: randomUUID(),
-      sender: adminAddress,
+      sender: session?.address as string,
       receiver: address as string,
       content: input,
       timestamp: dayjs().toISOString(),
@@ -85,31 +81,37 @@ export default observer(() => {
           inverted
           className="flex-1 flex w-full h-full flex-col"
           sections={sections}
-          // renderSectionHeader={renderSectionHeader}
+          renderSectionFooter={renderSectionFooter}
           renderItem={({ item }: { item: Message }) => {
-            const handlePress = () => {
-              if (!_.isEmpty(selections))
-                setSelections((selections) => _.xor(selections, [item.id]));
-            };
-            const handleLongPress = () => {
-              setSelections((selections) => _.xor(selections, [item.id]));
-            };
+            const { hideSubtitle, onPress } = useMessageState();
 
-            const isSelected = selections.includes(item.id);
+            // const handlePress = () => {
+            //   if (!_.isEmpty(selections))
+            //     setSelections((selections) => _.xor(selections, [item.id]));
+            // };
+            // const handleLongPress = () => {
+            //   setSelections((selections) => _.xor(selections, [item.id]));
+            // };
 
-            if (_.isEqual(item.sender, adminAddress)) {
+
+            if (_.isEqual(item.sender, session?.address)) {
               return (
                 <>
                   <Pressable
-                    className="w-full flex-row px-2 py-0.5 justify-end items-end"
-                    onPress={handlePress}
-                    onLongPress={handleLongPress}
+                    className="w-full flex-col px-2 py-0.5 justify-end items-end"
+                    onPress={onPress}
                   >
-                    <Card className="max-w-[80%] leading-1.5">
-                      <Card.Content>
-                        <Text style={{fontFamily: 'Inter_600Medium'}}>{item.content.trim()}</Text>
-                      </Card.Content>
-                    </Card>
+                    <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
+                      <TextMedium className="text-sm text-gray-900">
+                        {item.content.trim()}
+                      </TextMedium>
+                    </View>
+                    {!hideSubtitle && (
+                      <TextRegular className="text-xs text-right text-gray-600 dark:text-gray-400 p-0.5">
+                        <Feather name="clock" size={12} />{' '}
+                        {dayjs(item.timestamp).format("HH:ss")}
+                      </TextRegular>
+                    )}
                   </Pressable>
                 </>
               );
@@ -117,14 +119,19 @@ export default observer(() => {
             return (
               <>
                 <Pressable
-                  className="w-full flex px-2 py-0.1 justify-start"
-                  onPress={handlePress}
+                  className="w-full flex flex-col px-2 py-0.1 justify-start"
+                  onPress={onPress}
                 >
-                   <Card className="max-w-[80%] leading-1.5">
-                      <Card.Content>
-                        <Text style={{fontFamily: 'Inter_600Medium'}}>{item.content.trim()}</Text>
-                      </Card.Content>
-                    </Card>
+                  <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <Text className="text-sm font-medium text-gray-900 dark:text-white">
+                      {item.content.trim()}
+                    </Text>
+                  </View>
+                  {!hideSubtitle && (
+                      <TextRegular className="text-xs text-right text-gray-600 dark:text-gray-400">
+                        {dayjs(item.timestamp).format("HH:mm")}
+                      </TextRegular>
+                    )}
                 </Pressable>
               </>
             );
@@ -132,27 +139,24 @@ export default observer(() => {
           keyExtractor={(item) => item.id}
         />
       )}
-      <View className="w-full p-4 gap-x-4 flex flex-row items-end bg-white dark:bg-black">
+      <View className="w-full p-4 flex-row items-end bg-white dark:bg-black">
         <TextInput
           ref={inputRef}
-          className="flex-1 justify-center rounded-lg"
-          mode="outlined"
+          className="flex-1 font-['Inter\_500Medium'] justify-center p-2.5 px-4 rounded-lg text-black dark:text-white bg-gray-200 dark:bg-gray-800 border focus:border-gray-400 dark:focus:border-gray-400"
           value={input}
-          dense
-          style={{ backgroundColor: theme.colors.surface }}
           placeholder="Aa.."
-          contentStyle={{ paddingTop: 10, paddingBottom: 8 }}
+          placeholderTextColor={colors.gray[400]}
           onChangeText={_input}
+          cursorColor={colors.gray[50]}
           multiline={true}
         />
         <Pressable
-          className="rounded-xl items-center justify-center p-3"
+          className="rounded-xl items-center justify-center p-3 ml-4 bg-gray-900 dark:bg-gray-100"
           onPress={handleSubmit}
-          style={{
-            backgroundColor: theme.colors.onBackground,
-          }}
         >
-          <Feather name="arrow-up" size={24} color={theme.colors.background} />
+          <Text className="text-gray-50 dark:text-gray-950">
+            <Feather name="arrow-up" size={24} />
+          </Text>
         </Pressable>
       </View>
       <Stack.Screen
@@ -185,12 +189,12 @@ export default observer(() => {
   );
 });
 
-function renderSectionHeader({ section }: { section: { title: string } }) {
+function renderSectionFooter({ section }: { section: { title: string } }) {
   return (
     <>
-      <Text className="text-center text-sm text-gray-500 dark:text-gray-600 capitalize my-2">
+      <TextMedium className="text-center text-gray-600 dark:text-gray-400 capitalize my-2">
         {section.title}
-      </Text>
+      </TextMedium>
     </>
   );
 }

@@ -18,12 +18,20 @@ import { TextMedium } from "../components/Text";
 import theme from "../misc/theme";
 import { SessionProvider } from "../providers/authenticationContext";
 import { databaseInitHandler } from "../store/adapter";
+import { useSession } from "../hooks/auth";
 
 SplashScreen.preventAutoHideAsync();
 
+export const unstable_settings = {
+  // Ensure any route can link back to `/`
+  initialRouteName: 'chat',
+  chat : {
+    initialRouteName: 'index'
+  }
+};
+
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
-  
 
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
@@ -74,7 +82,7 @@ export default function RootLayout() {
               className="flex-1 flex"
               onLayout={onLayoutRootView}
             >
-              <Slot />
+              <Slot initialRouteName="chat"/>
             </GestureHandlerRootView>
           </PaperProvider>
         </SQLiteProvider>

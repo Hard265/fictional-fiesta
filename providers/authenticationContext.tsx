@@ -1,10 +1,10 @@
 import React from "react";
 import { useStorageState } from "../hooks/storage";
 import { User } from "../types/auth";
-import { parseCookie } from "../helpers/utils";
+import { parseCookie, stringifyCookie } from "../helpers/utils";
 
 const AuthContext = React.createContext<{
-  signIn: () => void;
+  signIn: (user: User) => void;
   signOut: () => void;
   session: User | null;
   isLoading: boolean;
@@ -23,9 +23,8 @@ function SessionProvider(props: React.PropsWithChildren) {
   return (
     <AuthContext.Provider
       value={{
-        signIn: () => {
-          // Perform sign-in logic here
-          setSession("xxx");
+        signIn: (user: User) => {
+          setSession(stringifyCookie(user));
         },
         signOut: () => {
           setSession(null);
