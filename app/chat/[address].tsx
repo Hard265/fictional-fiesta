@@ -28,7 +28,7 @@ import { useSession } from "../../hooks/auth";
 import useMessageState from "../../hooks/useMessageState";
 
 export default observer(() => {
-  const { address, displayName } = useLocalSearchParams();
+  const { address, displayName } = useLocalSearchParams<{address:string, displayName:string}>();
   const db = useSQLiteContext();
   const { session } = useSession();
 
@@ -38,7 +38,7 @@ export default observer(() => {
 
   useEffect(() => {
     async function setup() {
-      store.chatStore.init(db, address as string);
+      store.chatStore.init(db, address as string, session?.address as string);
     }
     setup();
   }, []);

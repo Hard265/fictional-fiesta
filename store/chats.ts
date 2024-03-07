@@ -22,11 +22,11 @@ class ChatStore {
         this.rootStore = rootStore;
     }
 
-    async init(db: SQLiteDatabase, address: string) {
+    async init(db: SQLiteDatabase, address: string, admin: string) {
         try {
             const messages = await db.getAllAsync<Message>(
                 "SELECT * FROM messages WHERE (sender = $address AND receiver = $admin) OR (sender = $admin AND receiver = $address)",
-                { $address: address, $admin: this.rootStore.userStore.admin.address }
+                { $address: address, $admin: admin }
 
             );
             this._mediator(address, messages)
