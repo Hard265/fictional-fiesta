@@ -9,12 +9,6 @@ class UserStore {
     rootStore: typeof Store;
     users: User[] = []
 
-    admin: User = {
-        address: 'ee3c5216-3152-473a-8f17-c4adf8ba7bba',
-        displayName: 'Me',
-        publicKey: 'key'
-    }
-
     constructor(rootStore: typeof Store) {
         this.rootStore = rootStore;
         makeObservable(this, {

@@ -15,8 +15,6 @@ export async function databaseInitHandler(db: SQLiteDatabase) {
             created TEXT DEFAULT CURRENT_TIMESTAMP
         );
 
-        INSERT OR IGNORE INTO users (address, displayName, publicKey) VALUES ('ee3c5216-3152-473a-8f17-c4adf8ba7bba', 'Me', 'key');
-
         CREATE TABLE IF NOT EXISTS messages (
             id TEXT PRIMARY KEY,
             sender TEXT NOT NULL,
