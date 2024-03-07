@@ -11,11 +11,9 @@ import {
   ActivityIndicator,
   Pressable,
   SectionList,
-  Text,
   TextInput as TextInputType,
   View,
 } from "react-native";
-import theme from "../../misc/theme";
 import store from "../../store/store";
 import { User } from "../../types/auth";
 import { Message } from "../../types/chat";
@@ -23,14 +21,20 @@ import { observable } from "mobx";
 import InboxShimmer from "../../components/InboxShimmer";
 import InboxEmptyPlaceholder from "../../components/InboxEmptyPlaceholder";
 import { TextMedium } from "../../components/Text";
-import { IconButton, TextInput, useTheme } from "react-native-paper";
+import {
+  Card,
+  IconButton,
+  TextInput,
+  useTheme,
+  Text,
+} from "react-native-paper";
 
 export default observer(() => {
   const { address, displayName } = useLocalSearchParams();
 
   const { colorScheme } = useColorScheme();
   const db = useSQLiteContext();
-  const paperTheme = useTheme();
+  const theme = useTheme();
   const inputRef = createRef<TextInputType>();
   const [input, _input] = useState("");
   const [selections, setSelections] = useState<string[]>([]);
@@ -81,7 +85,7 @@ export default observer(() => {
           inverted
           className="flex-1 flex w-full h-full flex-col"
           sections={sections}
-          renderSectionHeader={renderSectionHeader}
+          // renderSectionHeader={renderSectionHeader}
           renderItem={({ item }: { item: Message }) => {
             const handlePress = () => {
               if (!_.isEmpty(selections))
@@ -97,20 +101,15 @@ export default observer(() => {
               return (
                 <>
                   <Pressable
-                    className="w-full flex-row px-2 py-1 justify-end items-end"
+                    className="w-full flex-row px-2 py-0.5 justify-end items-end"
                     onPress={handlePress}
                     onLongPress={handleLongPress}
                   >
-                    <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
-                      <TextMedium className="text-sm text-gray-900">
-                        {item.content.trim()}
-                      </TextMedium>
-                    </View>
-                    {isSelected && (
-                      <Text className="dark:text-white p-1 pb-0">
-                        <Feather name="check-square" size={20} />
-                      </Text>
-                    )}
+                    <Card className="max-w-[80%] leading-1.5">
+                      <Card.Content>
+                        <Text style={{fontFamily: 'Inter_600Medium'}}>{item.content.trim()}</Text>
+                      </Card.Content>
+                    </Card>
                   </Pressable>
                 </>
               );
@@ -118,14 +117,14 @@ export default observer(() => {
             return (
               <>
                 <Pressable
-                  className="w-full flex px-2 py-1 justify-start"
+                  className="w-full flex px-2 py-0.1 justify-start"
                   onPress={handlePress}
                 >
-                  <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
-                    <Text className="text-sm font-medium text-gray-900 dark:text-white">
-                      {item.content.trim()}
-                    </Text>
-                  </View>
+                   <Card className="max-w-[80%] leading-1.5">
+                      <Card.Content>
+                        <Text style={{fontFamily: 'Inter_600Medium'}}>{item.content.trim()}</Text>
+                      </Card.Content>
+                    </Card>
                 </Pressable>
               </>
             );
@@ -136,26 +135,24 @@ export default observer(() => {
       <View className="w-full p-4 gap-x-4 flex flex-row items-end bg-white dark:bg-black">
         <TextInput
           ref={inputRef}
-          className="flex-1 justify-center"
+          className="flex-1 justify-center rounded-lg"
           mode="outlined"
           value={input}
+          dense
+          style={{ backgroundColor: theme.colors.surface }}
           placeholder="Aa.."
-          contentStyle={{ paddingTop: 14, paddingBottom: 14 }}
+          contentStyle={{ paddingTop: 10, paddingBottom: 8 }}
           onChangeText={_input}
           multiline={true}
         />
         <Pressable
-          className="rounded-xl items-center justify-center p-4"
+          className="rounded-xl items-center justify-center p-3"
           onPress={handleSubmit}
           style={{
-            backgroundColor: paperTheme.colors.secondaryContainer,
+            backgroundColor: theme.colors.onBackground,
           }}
         >
-          <Feather
-            name="arrow-up"
-            size={24}
-            color={paperTheme.colors.onSecondaryContainer}
-          />
+          <Feather name="arrow-up" size={24} color={theme.colors.background} />
         </Pressable>
       </View>
       <Stack.Screen

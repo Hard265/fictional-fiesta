@@ -11,12 +11,14 @@ import { User } from "../../types/auth";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import QRCode from "react-qr-code";
-import { Button, Card, useTheme } from "react-native-paper";
+import { Button, Card, Portal, useTheme } from "react-native-paper";
 import { TextSemiBold } from "../../components/Text";
 import { TextButtonStyle } from "../../misc/styles";
 import Shimmer from "../../components/Shimmer";
 
-type modals = "deletion" | "block" | null;
+enum Dialog {
+  DELETEUSER
+}
 
 export default observer(() => {
   const { address, displayName } = useLocalSearchParams();
@@ -87,18 +89,9 @@ export default observer(() => {
       >
         Delete {displayName || address}
       </Button>
-      {/* <Pressable
-        className="flex flex-row justify-center w-full px-4 py-2.5 bg-red-500 mt-4 rounded-lg items-center"
-        onPress={() => _modal("deletion")}
-      >
-        <Text
-          ellipsizeMode="tail"
-          numberOfLines={1}
-          className="text-white font-medium"
-        >
-          Delete <Text className="font-semibold">{displayName || address}</Text>
-        </Text>
-      </Pressable> */}
+      <Portal>
+        <Modal visibale={modal === Dialog.DELETEUSER}></Modal>
+      </Portal>
       <Stack.Screen
         options={{
           title: (displayName || address) as string,

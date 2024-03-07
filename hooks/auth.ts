@@ -1,5 +1,5 @@
 import React from "react";
-import { AuthContext } from "../providers/authCtx";
+import { AuthContext } from "../providers/authenticationContext";
 
 function useSession() {
     const value = React.useContext(AuthContext);

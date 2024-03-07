@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Pressable, TextStyle, View } from "react-native";
 import { Button, Chip, TextInput, useTheme } from "react-native-paper";
 import _ from "lodash";
+import store from '../store/store'
 
 import { TextButtonStyle } from "../misc/styles";
 import { TextBlack, TextMedium, TextSemiBold } from "../components/Text";
@@ -13,9 +14,9 @@ export default function Page() {
   
   const theme = useTheme();
 
-  if(store.userStore.admin){
-    return <Redirect href="/chat" />
-  }
+  // if(store.userStore.admin){
+  //   return <Redirect href="/chat" />
+  // }
 
   return (
     <View className="flex-1 flex p-4 items-center justify-end dark:bg-black">
