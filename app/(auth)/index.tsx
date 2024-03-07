@@ -4,30 +4,34 @@ import { useEffect, useState } from "react";
 import { Pressable, TextInput, TextStyle, View } from "react-native";
 import { Button, Chip, useTheme } from "react-native-paper";
 import _ from "lodash";
-import store from "../store/store";
+import store from "../../store/store";
 
-import { TextButtonStyle } from "../misc/styles";
+import { TextButtonStyle } from "../../misc/styles";
 import {
   TextBlack,
   TextMedium,
   TextRegular,
   TextSemiBold,
-} from "../components/Text";
-import { setStorageItemAsync } from "../hooks/storage";
-import { useSession } from "../hooks/auth";
+} from "../../components/Text";
+import { setStorageItemAsync } from "../../hooks/storage";
+import { useSession } from "../../hooks/auth";
+import { useSQLiteContext } from "expo-sqlite/next";
 
 export default function Page() {
   const [mnemonic, _mnemonic] = useState("");
   const { signIn } = useSession();
+  const db = useSQLiteContext();
 
   const handleContinue = async () => {
-    signIn({
+    signIn(db, {
       address: "ee3c5216-3152-473a-8f17-c4adf8ba7bba",
       publicKey: "key",
       privateKey: "key",
     });
     router.replace("/chat");
   };
+
+  
 
   return (
     <View className="flex-1 flex p-4 items-center justify-end dark:bg-black">

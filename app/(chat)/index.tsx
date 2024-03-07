@@ -30,12 +30,14 @@ import {
 import { Avatar, List, Text, useTheme } from "react-native-paper";
 import { TextButtonStyle } from "../../misc/styles";
 import colors from "tailwindcss/colors";
+import { useSession } from "../../hooks/auth";
 
 type modalT = "finder" | "contacts" | "qrscanner" | null;
 
 export default observer(() => {
   const { colorScheme } = useColorScheme();
   const theme = useTheme();
+  const { session } = useSession();
   const [query, setQuery] = useState("");
   const [modal, setModal] = useState<modalT>(null);
 
@@ -44,18 +46,40 @@ export default observer(() => {
   useEffect(() => {
     async function setup() {
       store.userStore.init(db);
+      try {
+        let r= await db.getAllAsync(`SELECT m.*
+      FROM messages m
+      INNER JOIN (
+          SELECT sender_id, receiver_id, MAX(timestamp) AS max_timestamp
+          FROM messages
+          GROUP BY sender_id, receiver_id
+      ) latest_messages
+      ON m.sender_id = latest_messages.sender_id
+      AND m.receiver_id = latest_messages.receiver_id
+      AND m.timestamp = latest_messages.max_timestamp
+      WHERE m.sender_id != m.receiver_id`)
+
+      console.log(r);
+      
+      } catch (error) {
+        console.log(error);
+        
+      }
+      
     }
     setup();
   }, []);
 
-  const data =
+  const data = _.filter(
     !_.isEmpty(query) && modal === "finder"
       ? _.filter(store.userStore.users, (user) =>
           user.displayName
             ? user.displayName.toLowerCase().includes(query.toLowerCase())
             : false
         )
-      : store.userStore.users;
+      : store.userStore.users,
+    (user) => user.address !== session?.address
+  );
 
   function handleAddUser(): void {
     store.userStore.post(db, {
@@ -70,7 +94,6 @@ export default observer(() => {
       ][_.random(4, false)],
     });
   }
-
 
   return (
     <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">

@@ -82,7 +82,7 @@ export default function RootLayout() {
               className="flex-1 flex"
               onLayout={onLayoutRootView}
             >
-              <Slot initialRouteName="chat"/>
+              <Slot initialRouteName="/(auth)"/>
             </GestureHandlerRootView>
           </PaperProvider>
         </SQLiteProvider>

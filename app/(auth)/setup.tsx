@@ -3,8 +3,8 @@ import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, TextInput, FlatList, TouchableOpacity, Pressable, Modal, StyleSheet } from 'react-native';
-import { generateMnemonic } from '../utils/cryptography';
-import Prompt, { PromptActions } from '../components/Prompt';
+import { generateMnemonic } from '../../utils/cryptography';
+import Prompt, { PromptActions } from '../../components/Prompt';
 
 interface PageProps {
     // Define props here if needed

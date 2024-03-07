@@ -5,12 +5,18 @@ import { Button, useTheme } from "react-native-paper";
 import { TextButtonStyle } from "../../misc/styles";
 import QRCode from "react-qr-code";
 import { useSession } from "../../hooks/auth";
+import { useSQLiteContext } from "expo-sqlite/next";
 
 export default function Page() {
   const theme = useTheme();
-  const { session } = useSession();
+  const { session, signOut } = useSession();
+  const db = useSQLiteContext();
 
   const url = `klk://kloak.io/${session?.address}/?publicKey=${session?.publicKey}`;
+
+  const handleDeleteSession=()=>{
+    signOut(db);
+  }
   
 
   return (
@@ -44,7 +50,7 @@ export default function Page() {
         labelStyle={[TextButtonStyle]}
         buttonColor={theme.colors.errorContainer}
         textColor={theme.colors.onErrorContainer}
-        onPress={() => console.log("Pressed")}
+        onPress={handleDeleteSession}
       >
         Delete address
       </Button>
