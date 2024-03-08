@@ -23,7 +23,7 @@ export default function Page() {
   const db = useSQLiteContext();
 
   const handleContinue = async () => {
-    signIn(db, {
+    signIn({
       address: "ee3c5216-3152-473a-8f17-c4adf8ba7bba",
       publicKey: "key",
       privateKey: "key",

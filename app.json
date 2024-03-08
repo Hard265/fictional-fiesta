@@ -19,7 +19,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSFaceIDUsageDescription": "Allow $(PRODUCT_NAME) to use Face ID."
-      }
+      },
+      "bundleIdentifier": "com.hard265.kloak"
     },
     "android": {
       "adaptiveIcon": {

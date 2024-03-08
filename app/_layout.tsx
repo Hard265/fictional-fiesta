@@ -24,10 +24,10 @@ SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
   // Ensure any route can link back to `/`
-  initialRouteName: 'chat',
-  chat : {
-    initialRouteName: 'index'
-  }
+  initialRouteName: "chat",
+  chat: {
+    initialRouteName: "index",
+  },
 };
 
 export default function RootLayout() {
@@ -67,26 +67,24 @@ export default function RootLayout() {
     return null;
   }
 
-  
-
   return (
     <Suspense fallback={<TextMedium>loading</TextMedium>}>
-      <SessionProvider>
-        <SQLiteProvider
-          databaseName="test.db"
-          onInit={databaseInitHandler}
-          useSuspense
-        >
+      <SQLiteProvider
+        databaseName="test.db"
+        onInit={databaseInitHandler}
+        useSuspense
+      >
+        <SessionProvider>
           <PaperProvider theme={themeSchema}>
             <GestureHandlerRootView
               className="flex-1 flex"
               onLayout={onLayoutRootView}
             >
-              <Slot initialRouteName="/(auth)"/>
+              <Slot initialRouteName="/(auth)" />
             </GestureHandlerRootView>
           </PaperProvider>
-        </SQLiteProvider>
-      </SessionProvider>
+        </SessionProvider>
+      </SQLiteProvider>
     </Suspense>
   );
 }

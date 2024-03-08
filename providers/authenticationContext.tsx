@@ -2,11 +2,11 @@ import React from "react";
 import { useStorageState } from "../hooks/storage";
 import { User } from "../types/auth";
 import { parseCookie, stringifyCookie } from "../helpers/utils";
-import { SQLiteDatabase } from "expo-sqlite/next";
+import { useSQLiteContext } from "expo-sqlite/next";
 
 const AuthContext = React.createContext<{
-  signIn: (db: SQLiteDatabase, user: User) => void;
-  signOut: (db: SQLiteDatabase) => void;
+  signIn: (user: User) => void;
+  signOut: () => void;
   session: User | null;
   isLoading: boolean;
 }>({
@@ -18,13 +18,14 @@ const AuthContext = React.createContext<{
 
 function SessionProvider(props: React.PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
+  const db = useSQLiteContext()
 
   const parsedSession = session ? (parseCookie(session) as User) : null;
 
   return (
     <AuthContext.Provider
       value={{
-        signIn: (db: SQLiteDatabase, user: User) => {
+        signIn: (user: User) => {
           db.runSync(
             "INSERT INTO users(address, publicKey, displayName) VALUES ($address, $publicKey, $displayName)",
             {
@@ -35,7 +36,7 @@ function SessionProvider(props: React.PropsWithChildren) {
           );
           setSession(stringifyCookie(user));
         },
-        signOut: (db: SQLiteDatabase) => {
+        signOut: () => {
           db.runSync("DROP TABLE users; DROP TABLE messages;");
           setSession(null);
         },

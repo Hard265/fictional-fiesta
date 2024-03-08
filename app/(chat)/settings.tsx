@@ -15,7 +15,7 @@ export default function Page() {
   const url = `klk://kloak.io/${session?.address}/?publicKey=${session?.publicKey}`;
 
   const handleDeleteSession=()=>{
-    signOut(db);
+    signOut();
   }
   
 
