@@ -31,6 +31,8 @@ import { Avatar, List, Text, useTheme } from "react-native-paper";
 import { TextButtonStyle } from "../../misc/styles";
 import colors from "tailwindcss/colors";
 import { useSession } from "../../hooks/auth";
+import { Message } from "../../types/chat";
+import { other } from "../../helpers/utils";
 
 type modalT = "finder" | "contacts" | "qrscanner" | null;
 
@@ -45,54 +47,53 @@ export default observer(() => {
 
   useEffect(() => {
     async function setup() {
-      store.userStore.init(db);
-      try {
-        let r= await db.getAllAsync(`SELECT m.*
-      FROM messages m
-      INNER JOIN (
-          SELECT sender_id, receiver_id, MAX(timestamp) AS max_timestamp
-          FROM messages
-          GROUP BY sender_id, receiver_id
-      ) latest_messages
-      ON m.sender_id = latest_messages.sender_id
-      AND m.receiver_id = latest_messages.receiver_id
-      AND m.timestamp = latest_messages.max_timestamp
-      WHERE m.sender_id != m.receiver_id`)
+      const messages = await db.getAllAsync<Message>(
+        "SELECT m.* FROM messages m INNER JOIN ( SELECT sender, receiver, MAX(timestamp) AS max_timestamp FROM messages GROUP BY sender, receiver ) latest_messages ON m.sender = latest_messages.sender AND m.receiver = latest_messages.receiver AND m.timestamp = latest_messages.max_timestamp WHERE m.sender != m.receiver"
+      );
 
-      console.log(r);
+      const columes = Array(messages.length).fill('?').join(",")
       
-      } catch (error) {
-        console.log(error);
-        
-      }
+      const users = await db.getAllAsync<User>(
+        `SELECT * FROM users WHERE address IN (${columes})`,
+        messages.map((message) =>
+          other(session?.address, message.sender, message.receiver)
+        )
+      );
       
+      store.addUsers(users);
+      store.addMessages(messages, session?.address ?? "");
     }
     setup();
   }, []);
 
-  const data = _.filter(
-    !_.isEmpty(query) && modal === "finder"
-      ? _.filter(store.userStore.users, (user) =>
-          user.displayName
-            ? user.displayName.toLowerCase().includes(query.toLowerCase())
-            : false
-        )
-      : store.userStore.users,
-    (user) => user.address !== session?.address
-  );
+  const data = _.chain(store.messages)
+    .mapValues(_.last)
+    .values()
+    .compact()
+    .value();
+  // const data = _.filter(
+  //   !_.isEmpty(query) && modal === "finder"
+  //     ? _.filter(store.userStore.users, (user) =>
+  //         user.displayName
+  //           ? user.displayName.toLowerCase().includes(query.toLowerCase())
+  //           : false
+  //       )
+  //     : store.userStore.users,
+  //   (user) => user.address !== session?.address
+  // );
 
   function handleAddUser(): void {
-    store.userStore.post(db, {
-      address: randomUUID(),
-      publicKey: randomUUID(),
-      displayName: [
-        "Mr Namakhwa",
-        "Santos Runolfsdottir",
-        "Mrs. Valerie Runte",
-        "Shannon Heller",
-        "Dorothy Abshire",
-      ][_.random(4, false)],
-    });
+    // store.userStore.post(db, {
+    //   address: randomUUID(),
+    //   publicKey: randomUUID(),
+    //   displayName: [
+    //     "Mr Namakhwa",
+    //     "Santos Runolfsdottir",
+    //     "Mrs. Valerie Runte",
+    //     "Shannon Heller",
+    //     "Dorothy Abshire",
+    //   ][_.random(4, false)],
+    // });
   }
 
   return (
@@ -133,45 +134,46 @@ export default observer(() => {
         className="w-full"
         contentContainerStyle={{ alignItems: "flex-start" }}
         renderItem={({ item }) => {
-          const itemRef = createRef<Swipeable>();
-          const rightActions = () => (
-            <View
-              style={{ backgroundColor: theme.colors.errorContainer }}
-              className="items-end justify-center w-full p-4"
-            >
-              <Feather
-                name="trash"
-                size={24}
-                color={theme.colors.onErrorContainer}
-              />
-            </View>
-          );
+          const user = _.find(store.users, [
+            "address",
+            other(session?.address, item.sender, item.receiver),
+          ]);
 
           const handleSwipeDelete = (direction: "left" | "right") => {
-            store.userStore.delete(db, item.address).then(() => {
-              itemRef.current?.close();
-            });
+            // store.userStore.delete(db, item.address).then(() => {
+            //   itemRef.current?.close();
+            // });
           };
 
           return (
             <Swipeable
-              ref={itemRef}
-              renderRightActions={rightActions}
+              renderRightActions={() => (
+                <View
+                  style={{ backgroundColor: theme.colors.errorContainer }}
+                  className="items-end justify-center w-full p-4"
+                >
+                  <Feather
+                    name="trash"
+                    size={24}
+                    color={theme.colors.onErrorContainer}
+                  />
+                </View>
+              )}
               onSwipeableOpen={handleSwipeDelete}
             >
               <List.Item
                 onPress={() =>
                   router.push(
-                    `chat/${item.address}?displayName=${item.displayName}`
+                    `chat/${user?.address}?displayName=${user?.displayName}`
                   )
                 }
-                title={item.displayName || item.address}
-                description={item.address}
+                title={user?.displayName || user?.address}
+                description={item.content}
                 className="py-0 dark:bg-black"
                 left={() => (
                   <View className="rounded-full ml-1 p-3 bg-gray-300 dark:bg-gray-800">
                     <TextBold className="uppercase">
-                      {item.displayName?.substring(0, 2)}
+                      {user?.displayName?.substring(0, 2)}
                     </TextBold>
                   </View>
                 )}
@@ -179,7 +181,7 @@ export default observer(() => {
             </Swipeable>
           );
         }}
-        keyExtractor={(item) => item.address}
+        keyExtractor={(item) => item.id}
       />
       {modal === "finder" ? (
         <>

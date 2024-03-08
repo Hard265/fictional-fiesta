@@ -1,40 +1,32 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { useAsyncState } from "./storage";
 import { Socket, io } from "socket.io-client";
 import { SocketContext } from "../providers/SocketProvider";
+import { UseStateHook, useAsyncState } from "./common";
 
-export
-function useSocketState(socketUrl:string){
+export function useSocketState(socketUrl: string): UseStateHook<Socket> {
     const [state, setState] = useAsyncState<Socket>();
-    const [isConnected,setIsConnected] = useState(false);
-
-    
 
     useEffect(() => {
-            const newSocket = io(socketUrl);
-            newSocket.on('connect', () => {
-                setIsConnected(true);
+        if (socketUrl) {
+            const socket = io(socketUrl);
+            socket.on("connect", () => {
+                setValue(socket)
             });
-
-            newSocket.on('disconnect', () => {
-                setIsConnected(false);
+            socket.on("disconnect", () => {
+                setValue(socket)
             });
+            setState(socket);
+        }
+    })
 
-            setState(newSocket);
+    const setValue = useCallback((value: Socket | null) => {
+        setState(value);
+    }, [socketUrl]);
 
-                                                // Clean up socket on unmount
-            return () => {
-                newSocket.disconnect();
-            };
-                         }, [socketUrl]);
-    
-     const setValue = useCallback((value:string )=>{
-        
-     },[])
-    return {connecting:state[0], connection :state[1], setValue}
+    return [state, setValue]
 }
 
-export default function useSocket(){
+export default function useSocket() {
     const value = useContext(SocketContext)
     if (process.env.NODE_ENV !== 'production') {
         if (!value) {

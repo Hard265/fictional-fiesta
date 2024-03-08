@@ -25,7 +25,7 @@ import InboxEmptyPlaceholder from "../../components/InboxEmptyPlaceholder";
 import { TextMedium, TextRegular } from "../../components/Text";
 import colors from "tailwindcss/colors";
 import { useSession } from "../../hooks/auth";
-import useMessageState from "../../hooks/useMessageState";
+import { useMessageState } from "../../hooks/common";
 
 export default observer(() => {
   const { address, displayName } = useLocalSearchParams<{address:string, displayName:string}>();
@@ -36,15 +36,23 @@ export default observer(() => {
   const [input, _input] = useState("");
   const [selections, setSelections] = useState<string[]>([]);
 
+
+  if(!session || !address) return null;
+
   useEffect(() => {
     async function setup() {
-      store.chatStore.init(db, address as string, session?.address as string);
+      // const messages = await db.getAllAsync<Message>(
+      //   "SELECT * FROM messages WHERE (sender = $address AND receiver = $admin) OR (sender = $admin AND receiver = $address)",
+      //   { $address: address , $admin: session?.address }
+
+    // );
     }
     setup();
   }, []);
 
+
   const messages: Message[] | undefined =
-    store.chatStore.chats[address as string];
+    store.messages[address];
   const sections = _.chain(messages)
     .sortBy("timestamp")
     .clone()
@@ -54,27 +62,34 @@ export default observer(() => {
     .value();
 
   const handleSubmit = async () => {
-    store.chatStore.post(db, address as string, {
+    store.addMessages([{
       id: randomUUID(),
-      sender: session?.address as string,
-      receiver: address as string,
+      sender: session.address,
+      receiver: address,
       content: input,
       timestamp: dayjs().toISOString(),
-    });
-    _input("");
-    inputRef.current?.blur();
+    }], session.address)
+    // store.chatStore.post(db, address as string, {
+    //   id: randomUUID(),
+    //   sender: session?.address as string,
+    //   receiver: address as string,
+    //   content: input,
+    //   timestamp: dayjs().toISOString(),
+    // });
+    // _input("");
+    // inputRef.current?.blur();
   };
 
   const handleDeleteMessages = async () => {
     for (const id of selections) {
-      store.chatStore.delete(db, address as string, id);
+      // store.chatStore.delete(db, address as string, id);
     }
     setSelections([]);
   };
 
   return (
     <View className="flex-1 flex h-full items-center justify-center dark:bg-black">
-      {!store.chatStore.chats[address as string] ? (
+      {!store.messages[address as string] ? (
         <InboxShimmer />
       ) : (
         <SectionList

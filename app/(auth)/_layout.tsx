@@ -14,8 +14,8 @@ export default function AuthLayout() {
     );
   }
 
-  if (!session) {
-    return <Redirect href="/(chat)" />;
+  if (session) {
+    return <Redirect href="/chat" />;
   }
 
   return <Slot />;

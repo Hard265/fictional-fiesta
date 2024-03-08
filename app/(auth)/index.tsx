@@ -1,21 +1,17 @@
-import { router, Redirect } from "expo-router";
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
-import { Pressable, TextInput, TextStyle, View } from "react-native";
-import { Button, Chip, useTheme } from "react-native-paper";
 import _ from "lodash";
-import store from "../../store/store";
+import { useState } from "react";
+import { TextInput, View } from "react-native";
+import { Button } from "react-native-paper";
 
-import { TextButtonStyle } from "../../misc/styles";
+import { useSQLiteContext } from "expo-sqlite/next";
 import {
   TextBlack,
-  TextMedium,
-  TextRegular,
-  TextSemiBold,
+  TextMedium
 } from "../../components/Text";
-import { setStorageItemAsync } from "../../hooks/storage";
 import { useSession } from "../../hooks/auth";
-import { useSQLiteContext } from "expo-sqlite/next";
+import { TextButtonStyle } from "../../misc/styles";
 
 export default function Page() {
   const [mnemonic, _mnemonic] = useState("");
@@ -28,7 +24,7 @@ export default function Page() {
       publicKey: "key",
       privateKey: "key",
     });
-    router.replace("/chat");
+    router.push("/chat");
   };
 
   

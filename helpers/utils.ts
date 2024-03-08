@@ -19,4 +19,12 @@ function stringifyCookie(cookieObj: { [key: string]: string }): string {
     return cookieArray.join('; ');
 }
 
+/**
+ * compairs param_1 and other params and return the one that is not equal to it.
+ */
+export function other(param_1: any, param_2: any, param_3: any): string {
+    return param_1 === param_2 ? param_3 : param_2;
+
+}
+
 export { parseCookie, stringifyCookie }

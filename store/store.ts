@@ -2,61 +2,67 @@ import { action, makeObservable, observable } from "mobx";
 import { User } from "../types/auth";
 import _ from "lodash";
 import { Message } from "../types/chat";
-import ChatStore from "./chats";
-import UserStore from "./user";
 
-
-interface Store {
-    chatStore: ChatStore;
-    userStore: UserStore;
-}
 
 class Store {
-    chatStore;
-    userStore;
+    users: User[] = [];
+    messages: {
+        [key: string]: Message[];
+    } = {};
+
 
     constructor() {
-        this.chatStore = new ChatStore(this);
-        this.userStore = new UserStore(this);
+        makeObservable(this, {
+            users: observable,
+            messages: observable,
+            addUsers: action,
+            removeUser: action,
+            addMessages: action,
+            removeMessage: action,
+        })
+        
+    }
+
+    addUsers(users: User[]) {
+        this.users = _.unionBy(users, this.users, "address");
+    }
+
+    removeUser(user: User) {
+        this.users = _.without(this.users, user);
+    }
+
+    addMessages(messages: Message[], admin: string) {
+        this.messages = _.mergeWith( _.groupBy(messages, (message) => message.sender === admin ? message.receiver : message.sender),this.messages, (objValue: Message[], srcValue: Message[]) => {
+            if (_.isArray(objValue)) {
+                return _.unionBy(objValue, srcValue, "id");
+            }
+        });
+    }
+
+    removeMessage(message: Message, addressUser: string) {
+        this.messages[addressUser] = _.without(this.messages[addressUser], message);
     }
 }
 
-// class Store {
-//     users: User[] = [];
-//     messages: Message[] = [];
+export default new Store();
 
-//     admin: User = {
-//         address: 'ee3c5216-3152-473a-8f17-c4adf8ba7bba',
-//         displayName: 'Me',
-//         publicKey: 'key'
-//     }
+
+// interface StoreX {
+//     chatStore: ChatStore;
+//     userStore: UserStore;
+// }
+
+// class StoreX {
+//     chatStore;
+//     userStore;
 
 //     constructor() {
-//         makeObservable(this, {
-//             users: observable,
-//             messages: observable,
-//             pushUsers: action,
-//             sliceUsers: action,
-//             pushMessages: action,
-//             sliceMessages: action
-//         })
-//     }
-
-//     pushUsers(users:User[]){
-//         this.users = _.uniqBy(_.concat(this.users,  users), 'address');
-//     }
-
-//     sliceUsers(users:User[]){
-//         this.users = _.difference(this.users, users)
-//     }
-
-//     pushMessages(messages: Message[]){
-//          this.messages = _.uniqBy(_.concat(this.messages, messages), 'id');
-//     }
-
-//     sliceMessages(messages:Message[]){
-//         this.messages = _.difference(this.messages, messages)
+//         this.chatStore = new ChatStore(this);
+//         this.userStore = new UserStore(this);
 //     }
 // }
 
-export default new Store();
+
+
+
+// export default new StoreX();

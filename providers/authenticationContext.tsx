@@ -18,7 +18,7 @@ const AuthContext = React.createContext<{
 
 function SessionProvider(props: React.PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
-  const db = useSQLiteContext()
+  const db = useSQLiteContext();
 
   const parsedSession = session ? (parseCookie(session) as User) : null;
 
@@ -27,7 +27,7 @@ function SessionProvider(props: React.PropsWithChildren) {
       value={{
         signIn: (user: User) => {
           db.runSync(
-            "INSERT INTO users(address, publicKey, displayName) VALUES ($address, $publicKey, $displayName)",
+            "INSERT OR IGNORE INTO users(address, publicKey, displayName) VALUES ($address, $publicKey, $displayName)",
             {
               $address: user.address,
               $publicKey: user.publicKey,
@@ -37,7 +37,9 @@ function SessionProvider(props: React.PropsWithChildren) {
           setSession(stringifyCookie(user));
         },
         signOut: () => {
-          db.runSync("DROP TABLE users; DROP TABLE messages;");
+          db.runSync(
+            "DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS messages;"
+          );
           setSession(null);
         },
         isLoading,
