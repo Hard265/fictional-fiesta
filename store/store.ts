@@ -27,6 +27,7 @@ class Store {
 
     // Method to add users and persist them in the database
     async addUsers(db:SQLiteDatabase ,users: User[]) {
+        if(_.isEmpty(users))return ;
         try {
             // For inserting multiple users at once
             const placeholders = Array(users.length).fill('(?, ?, ?)').join(',');
@@ -45,6 +46,7 @@ class Store {
 
     // Method to remove users and update the database accordingly
     async removeUsers(db:SQLiteDatabase,users: User[]) {
+        if (_.isEmpty(users))return;
         try {
             const placeholders = Array(users.length).fill('?').join(',');
             const addresses = users.map(user => user.address);
@@ -62,6 +64,7 @@ class Store {
 
     // Method to add messages and persist them in the database
     async addMessages(db:SQLiteDatabase, messages: Message[], admin: string) {
+        if(_.isEmpty(messages)) return ;
         try {
             // For inserting multiple messages at once
             const placeholders = Array(messages.length).fill('(?, ?, ?, ?, ?)').join(',');
