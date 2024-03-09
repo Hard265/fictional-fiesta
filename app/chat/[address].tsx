@@ -43,9 +43,9 @@ export default observer(() => {
     async function setup() {
       const messages = await db.getAllAsync<Message>(
         "SELECT * FROM messages WHERE (sender = $address AND receiver = $admin) OR (sender = $admin AND receiver = $address)",
-        { $address: address , $admin: session?.address  }
+        { $address: address ?? '' , $admin: session?.address ?? '' }
       );
-      store.addMessages(db, messages)
+      store.addMessages(db, messages,session?.address ?? '')
     }
     setup();
   }, []);
