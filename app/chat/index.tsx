@@ -35,6 +35,7 @@ import { Message } from "../../types/chat";
 import { other } from "../../helpers/utils";
 import '../../shim'
 import crypto from 'crypto'
+import dayjs from "dayjs";
 
 type modalT = "finder" | "contacts" | "qrscanner" | null;
 
@@ -69,12 +70,14 @@ export default observer(() => {
   }, []);
  // console.log(crypto.randomBytes(128).toString("hex"));
   
-
+//sort from new to oldest 
   const data = _.chain(store.messages)
     .mapValues(chatMessages =>  _.maxBy(chatMessages, 'timestamp'))
     .values()
     .compact()
+    .sortBy((message)=>dayjs(message.timestamp).toDate().getTime())
     .value();
+    
 
   return (
     <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">
