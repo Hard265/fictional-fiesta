@@ -33,6 +33,8 @@ import colors from "tailwindcss/colors";
 import { useSession } from "../../hooks/auth";
 import { Message } from "../../types/chat";
 import { other } from "../../helpers/utils";
+import '../../shim'
+import crypto from 'crypto'
 
 type modalT = "finder" | "contacts" | "qrscanner" | null;
 
@@ -60,11 +62,13 @@ export default observer(() => {
         )
       );
       
-      store.addUsers(users);
-      store.addMessages(messages, session?.address ?? "");
+      store.addUsers(db,users);
+      store.addMessages(db,messages, session?.address ?? "");
     }
     setup();
   }, []);
+ // console.log(crypto.randomBytes(128).toString("hex"));
+  
 
   const data = _.chain(store.messages)
     .mapValues(_.last)
@@ -190,7 +194,7 @@ export default observer(() => {
             entering={ZoomIn}
             exiting={ZoomOut}
           >
-            <TapGestureHandler onActivated={()=>setModal("qrscanner")}>
+            <TapGestureHandler onActivated={()=>store.addUsers(db, [{address:randomUUID(),publicKey:'xxx', displayName:randomUUID()}])}>
               <Feather
                 name="user-plus"
                 size={24}

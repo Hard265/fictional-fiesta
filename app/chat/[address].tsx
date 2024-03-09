@@ -62,7 +62,7 @@ export default observer(() => {
     .value();
 
   const handleSubmit = async () => {
-    store.addMessages([{
+    store.addMessages(db,[{
       id: randomUUID(),
       sender: session.address,
       receiver: address,
@@ -124,7 +124,7 @@ export default observer(() => {
                     {!hideSubtitle && (
                       <TextRegular className="text-xs text-right text-gray-600 dark:text-gray-400 p-0.5">
                         <Feather name="clock" size={12} />{' '}
-                        {dayjs(item.timestamp).format("HH:ss")}
+                        {dayjs(item.timestamp).format("HH:mm")}
                       </TextRegular>
                     )}
                   </Pressable>

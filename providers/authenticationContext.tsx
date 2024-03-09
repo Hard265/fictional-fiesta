@@ -37,8 +37,9 @@ function SessionProvider(props: React.PropsWithChildren) {
           setSession(stringifyCookie(user));
         },
         signOut: () => {
+          //TODO: delete all the rows in users and messages tabels
           db.runSync(
-            "DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS messages;"
+            "DELETE FROM users; DELETE FROM messages;"
           );
           setSession(null);
         },

@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import io from 'socket.io-client';
+import React, { PropsWithChildren, createContext, useContext, useEffect, useState } from 'react';
+import io, {Socket} from 'socket.io-client';
 
 // Define the context shape
 interface SocketContextType {
   connecting: boolean;
   isConnected: boolean;
-  socket: SocketIOClient.Socket | null;
+  socket: Socket | null;
 }
 
 // Create the context
@@ -19,13 +19,13 @@ const SocketContext = createContext<SocketContextType>({
 export const useSocket = () => useContext(SocketContext);
 
 // Socket provider component
-export const SocketProvider: React.FC<{ url: string }> = ({ url, children }) => {
+export function SocketProvider(props:PropsWithChildren<{url:string }>){
   const [connecting, setConnecting] = useState<boolean>(true);
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const newSocket = io(url);
+    const newSocket = io(props.url);
 
     newSocket.on('connect', () => {
       setConnecting(false);
@@ -42,11 +42,11 @@ export const SocketProvider: React.FC<{ url: string }> = ({ url, children }) => 
     return () => {
       newSocket.disconnect();
     };
-  }, [url]);
+  }, [props.url]);
 
   return (
     <SocketContext.Provider value={{ connecting, isConnected, socket }}>
-      {children}
+      {props.children}
     </SocketContext.Provider>
   );
 };
