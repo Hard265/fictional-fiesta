@@ -14,7 +14,7 @@ import { router } from "expo-router";
 import theme from "../misc/theme";
 import { useColorScheme } from "nativewind";
 import { useSQLiteContext } from "expo-sqlite/next";
-import _ from "lodash";
+import _, { round } from "lodash";
 import { _isComputed } from "mobx/dist/internal";
 
 export default function Users({
@@ -49,9 +49,10 @@ export default function Users({
     setSelection(_.xor(selection, [address]));
   };
 
-  const handlePress = (address: string) => {
+  const handlePress = (user:User) => {
+    router.push("/chat/"+user.address+"/?displayName="+user.displayName)
     if (!_.isEmpty(selection)) {
-      setSelection(_.xor(selection, [address]));
+      setSelection(_.xor(selection, [user.address]));
       return;
     }
   };
@@ -80,7 +81,6 @@ export default function Users({
           <Feather
             name="x"
             size={24}
-            color={theme[colorScheme].tint}
             onPress={onRequestClose}
           />
         </View>
@@ -92,7 +92,7 @@ export default function Users({
             const isSelected = _.includes(selection, item.address);
             return (
               <Pressable
-                onPress={() => handlePress(item.address)}
+                onPress={() => handlePress(item)}
                 onLongPress={() => handleLongPress(item.address)}
                 className="flex flex-row items-center gap-4 px-4 py-1.5"
               >
@@ -139,7 +139,6 @@ export default function Users({
               <Feather
                 name="user-plus"
                 size={20}
-                color={theme[colorScheme].bg}
               />
             </Pressable>
           ) : (
