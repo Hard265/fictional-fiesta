@@ -68,15 +68,8 @@ export default observer(() => {
       content: input,
       timestamp: dayjs().toISOString(),
     }], session.address)
-    // store.chatStore.post(db, address as string, {
-    //   id: randomUUID(),
-    //   sender: session?.address as string,
-    //   receiver: address as string,
-    //   content: input,
-    //   timestamp: dayjs().toISOString(),
-    // });
-    // _input("");
-    // inputRef.current?.blur();
+    _input("");
+    inputRef.current?.blur();
   };
 
   const handleDeleteMessages = async () => {
