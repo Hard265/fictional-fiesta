@@ -53,17 +53,17 @@ export default observer(() => {
         "SELECT m.* FROM messages m INNER JOIN ( SELECT sender, receiver, MAX(timestamp) AS max_timestamp FROM messages GROUP BY sender, receiver ) latest_messages ON m.sender = latest_messages.sender AND m.receiver = latest_messages.receiver AND m.timestamp = latest_messages.max_timestamp WHERE m.sender != m.receiver"
       );
 
-      const columes = Array(messages.length).fill('?').join(",")
-      
-      const users = await db.getAllAsync<User>(
-        `SELECT * FROM users WHERE address IN (${columes})`,
-        messages.map((message) =>
-          other(session?.address, message.sender, message.receiver)
-        )
-      );
-      
-      store.addUsers(db,users);
-      store.addMessages(db,messages, session?.address ?? "");
+      if(!_.isEmpty(messages){
+        const columes = Array(messages.length).fill('?').join(",")
+        const users = await db.getAllAsync<User>(
+          `SELECT * FROM users WHERE address IN (${columes})`,
+          messages.map((message) =>
+            other(session?.address, message.sender, message.receiver)
+          )
+        );
+        store.addUsers(db,users);
+        store.addMessages(db,messages, session?.address ?? "");
+      }
     }
     setup();
   }, []);
