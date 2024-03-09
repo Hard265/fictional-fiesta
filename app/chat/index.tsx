@@ -71,30 +71,7 @@ export default observer(() => {
     .values()
     .compact()
     .value();
-  // const data = _.filter(
-  //   !_.isEmpty(query) && modal === "finder"
-  //     ? _.filter(store.userStore.users, (user) =>
-  //         user.displayName
-  //           ? user.displayName.toLowerCase().includes(query.toLowerCase())
-  //           : false
-  //       )
-  //     : store.userStore.users,
-  //   (user) => user.address !== session?.address
-  // );
 
-  function handleAddUser(): void {
-    // store.userStore.post(db, {
-    //   address: randomUUID(),
-    //   publicKey: randomUUID(),
-    //   displayName: [
-    //     "Mr Namakhwa",
-    //     "Santos Runolfsdottir",
-    //     "Mrs. Valerie Runte",
-    //     "Shannon Heller",
-    //     "Dorothy Abshire",
-    //   ][_.random(4, false)],
-    // });
-  }
 
   return (
     <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">
@@ -213,7 +190,7 @@ export default observer(() => {
             entering={ZoomIn}
             exiting={ZoomOut}
           >
-            <TapGestureHandler onActivated={handleAddUser}>
+            <TapGestureHandler onActivated={()=>setModal("qrscanner")}>
               <Feather
                 name="user-plus"
                 size={24}
