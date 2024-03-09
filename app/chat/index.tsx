@@ -71,11 +71,9 @@ export default observer(() => {
   
 
   const data = _.chain(store.messages)
-    .mapValues(_.last)
-    .values()
+    .mapValues(chatMessages =>  _.maxBy(chatMessages, 'timestamp'))
     .compact()
     .value();
-
 
   return (
     <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">
@@ -169,7 +167,7 @@ export default observer(() => {
           <Animated.View
             entering={SlideInDown}
             exiting={SlideOutDown}
-            className="flex flex-row items-center gap-x-4 p-2 border-t border-gray-400 dark:border-gray-600"
+            className="flex flex-row items-center gap-x-4 p-2 border-t border-gray-300 dark:border-gray-800"
           >
             <TextInput
               value={query}
