@@ -1,35 +1,53 @@
-import { PropsWithChildren, createContext } from "react";
-import { useSocketState } from "../hooks/socket";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import io from 'socket.io-client';
 
-const SocketContext = createContext<{
-  connect: () => void;
-  connected: boolean;
-  loading: boolean;
-  connection: any;
-}>({
-  connect: () => {},
-  connected: false,
-  loading: false,
-  connection: null, //Socket instance
-});
-
-export function SocketProvider(props: PropsWithChildren) {
-  const [[loading, connection], setConnection] = useSocketState("");
-
-  return (
-    <SocketContext.Provider
-      value={{
-        loading,
-        connect() {
-          connection?.connect();
-        },
-        connected: false,
-        connection,
-      }}
-    >
-      {props.children}
-    </SocketContext.Provider>
-  );
+// Define the context shape
+interface SocketContextType {
+  connecting: boolean;
+  isConnected: boolean;
+  socket: SocketIOClient.Socket | null;
 }
 
-export { SocketContext };
+// Create the context
+const SocketContext = createContext<SocketContextType>({
+  connecting: false,
+  isConnected: false,
+  socket: null,
+});
+
+// Custom hook to use the socket context
+export const useSocket = () => useContext(SocketContext);
+
+// Socket provider component
+export const SocketProvider: React.FC<{ url: string }> = ({ url, children }) => {
+  const [connecting, setConnecting] = useState<boolean>(true);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [socket, setSocket] = useState<SocketIOClient.Socket | null>(null);
+
+  useEffect(() => {
+    const newSocket = io(url);
+
+    newSocket.on('connect', () => {
+      setConnecting(false);
+      setIsConnected(true);
+    });
+
+    newSocket.on('disconnect', () => {
+      setConnecting(false);
+      setIsConnected(false);
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [url]);
+
+  return (
+    <SocketContext.Provider value={{ connecting, isConnected, socket }}>
+      {children}
+    </SocketContext.Provider>
+  );
+};
+  
