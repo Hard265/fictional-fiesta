@@ -41,15 +41,14 @@ export default observer(() => {
 
   useEffect(() => {
     async function setup() {
-      // const messages = await db.getAllAsync<Message>(
-      //   "SELECT * FROM messages WHERE (sender = $address AND receiver = $admin) OR (sender = $admin AND receiver = $address)",
-      //   { $address: address , $admin: session?.address }
-
-    // );
+      const messages = await db.getAllAsync<Message>(
+        "SELECT * FROM messages WHERE (sender = $address AND receiver = $admin) OR (sender = $admin AND receiver = $address)",
+        { $address: address , $admin: session?.address  }
+      );
+      store.addMessages(db, messages)
     }
     setup();
   }, []);
-
 
   const messages: Message[] | undefined =
     store.messages[address];
