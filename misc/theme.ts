@@ -1,3 +1,5 @@
+import colors from "tailwindcss/colors";
+
 export default {
     light: {
         primary: "rgb(33, 81, 218)",
@@ -60,7 +62,7 @@ export default {
         onErrorContainer: "rgb(255, 180, 171)",
         background: "rgb(0, 0, 0)",
         onBackground: "rgb(228, 225, 230)",
-        surface: "rgb(27, 27, 31)",
+        surface: colors.gray[900],
         onSurface: "rgb(228, 225, 230)",
         surfaceVariant: "rgb(69, 70, 79)",
         onSurfaceVariant: "rgb(198, 197, 208)",

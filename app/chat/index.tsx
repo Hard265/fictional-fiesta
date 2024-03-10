@@ -1,8 +1,9 @@
 import { Feather } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import * as v from "expo-system-ui";
 import _ from "lodash";
-import { createRef, useEffect, useState } from "react";
+import { createRef, useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, TextInput, View } from "react-native";
 import { Swipeable, TapGestureHandler } from "react-native-gesture-handler";
 import Animated, {
@@ -29,24 +30,34 @@ import {
 } from "../../components/Text";
 import { Avatar, List, Text, useTheme } from "react-native-paper";
 import { TextButtonStyle } from "../../misc/styles";
-import colors from "tailwindcss/colors";
+import colors, { rose } from "tailwindcss/colors";
 import { useSession } from "../../hooks/auth";
 import { Message } from "../../types/chat";
 import { other } from "../../helpers/utils";
-import '../../shim'
-import crypto from 'crypto'
+import "../../shim";
+import crypto from "crypto";
 import dayjs from "dayjs";
+import BottomSheet, {
+  BottomSheetFlatList,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { UserCard } from "../../components/Cards";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type modalT = "finder" | "contacts" | "qrscanner" | null;
 
 export default observer(() => {
-  const { colorScheme } = useColorScheme();
   const theme = useTheme();
   const { session } = useSession();
   const [query, setQuery] = useState("");
   const [modal, setModal] = useState<modalT>(null);
 
   const db = useSQLiteContext();
+  const inserts = useSafeAreaInsets();
+  const snapPoints = useMemo(() => ["100%"], []);
+  const bottomSheetRef = createRef<BottomSheet>();
+
+  bottomSheetRef.current?.close();
 
   useEffect(() => {
     async function setup() {
@@ -54,30 +65,21 @@ export default observer(() => {
         "SELECT m.* FROM messages m INNER JOIN ( SELECT sender, receiver, MAX(timestamp) AS max_timestamp FROM messages GROUP BY sender, receiver ) latest_messages ON m.sender = latest_messages.sender AND m.receiver = latest_messages.receiver AND m.timestamp = latest_messages.max_timestamp WHERE m.sender != m.receiver"
       );
 
-      if(!_.isEmpty(messages)){
-        const columes = Array(messages.length).fill('?').join(",")
-        const users = await db.getAllAsync<User>(
-          `SELECT * FROM users WHERE address IN (${columes})`,
-          messages.map((message) =>
-            other(session?.address, message.sender, message.receiver)
-          )
-        );
-        store.addUsers(db,users);
-        store.addMessages(db,messages, session?.address ?? "");
-      }
+      const users = await db.getAllAsync<User>(`SELECT * FROM users`);
+      store.addUsers(db, users);
+      store.addMessages(db, messages, session?.address ?? "");
     }
     setup();
   }, []);
- // console.log(crypto.randomBytes(128).toString("hex"));
-  
-//sort from new to oldest 
+
+  console.log(store.users);
+
   const data = _.chain(store.messages)
-    .mapValues(chatMessages =>  _.maxBy(chatMessages, 'timestamp'))
+    .mapValues((chatMessages) => _.maxBy(chatMessages, "timestamp"))
     .values()
     .compact()
-    .sortBy((message)=>dayjs(message.timestamp).toDate().getTime())
+    .sortBy((message) => dayjs(message.timestamp).toDate().getTime())
     .value();
-    
 
   return (
     <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">
@@ -92,7 +94,7 @@ export default observer(() => {
                     name="users"
                     size={24}
                     color={props.tintColor}
-                    onPress={() => setModal("contacts")}
+                    onPress={() => bottomSheetRef.current?.expand()}
                   />
                   <Feather
                     name="search"
@@ -196,7 +198,17 @@ export default observer(() => {
             entering={ZoomIn}
             exiting={ZoomOut}
           >
-            <TapGestureHandler onActivated={()=>store.addUsers(db, [{address:randomUUID(),publicKey:'xxx', displayName:randomUUID()}])}>
+            <TapGestureHandler
+              onActivated={() =>
+                store.addUsers(db, [
+                  {
+                    address: randomUUID(),
+                    publicKey: "xxx",
+                    displayName: randomUUID(),
+                  },
+                ])
+              }
+            >
               <Feather
                 name="user-plus"
                 size={24}
@@ -206,7 +218,39 @@ export default observer(() => {
           </Animated.View>
         </>
       )}
-      {modal === "contacts" && <Users onRequestClose={() => setModal(null)} />}
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={snapPoints}
+        index={0}
+        enablePanDownToClose
+        handleIndicatorStyle={{ backgroundColor: theme.colors.onSurface }}
+        backgroundStyle={{ backgroundColor: theme.colors.surface }}
+      >
+        <View className="p-2">
+          <TextSemiBold className="text-center capitalize">
+            contacts
+          </TextSemiBold>
+        </View>
+        <BottomSheetFlatList
+          data={_.filter(
+            store.users,
+            (user) => user.address !== session?.address
+          )}
+          className="border-t h-full"
+          renderItem={({ item }) => {
+            return (
+              <UserCard
+                user={item}
+                onPress={() => {
+                  router.push(
+                    `/chat/${item.address}?displayName=${item.displayName}`
+                  );
+                }}
+              />
+            );
+          }}
+        />
+      </BottomSheet>
       {/* <ScanQRBottomsheet visible={modal === 'qrscanner'} onScanQR={handleScannedQR} onRequestClose={() => setModal(null)} /> */}
       {/* <ScanQRCodePrompt isOpen={saveUserPromptShown} onRequestClose={() => setSaveUserPromptShown(false)} onConfirm={() => setSaveUserPromptShown(false)} /> */}
       <StatusBar style="auto" />

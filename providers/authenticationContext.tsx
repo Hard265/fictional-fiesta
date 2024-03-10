@@ -3,6 +3,7 @@ import { useStorageState } from "../hooks/storage";
 import { User } from "../types/auth";
 import { parseCookie, stringifyCookie } from "../helpers/utils";
 import { useSQLiteContext } from "expo-sqlite/next";
+import store from "../store/store";
 
 const AuthContext = React.createContext<{
   signIn: (user: User) => void;
@@ -41,6 +42,7 @@ function SessionProvider(props: React.PropsWithChildren) {
           db.runSync(
             "DELETE FROM users; DELETE FROM messages;"
           );
+          store.reset()
           setSession(null);
         },
         isLoading,

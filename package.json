@@ -27,6 +27,7 @@
     "@expo-google-fonts/inter": "^0.2.3",
     "@expo-google-fonts/poppins": "^0.2.3",
     "@expo/vector-icons": "^14.0.0",
+    "@gorhom/bottom-sheet": "^4.6.1",
     "@tradle/react-native-http": "^2.0.1",
     "assert": "^1.5.1",
     "browserify-zlib": "^0.1.4",
