@@ -32,7 +32,7 @@ export default function Page() {
   return (
     <View className="flex-1 flex p-4 items-center justify-end dark:bg-black">
       <View className=" w-full my-auto">
-        <TextBlack className="text-gray-900 dark:text-white text-3xl">
+        <TextBlack className="text-gray-900 dark:text-white text-2xl">
           Restore Your Existing Address
         </TextBlack>
         <TextMedium className="text-gray-500 dark:text-gray-300">
@@ -44,8 +44,9 @@ export default function Page() {
         <TextInput
           value={mnemonic}
           multiline
+          numberOfLines={1}
           autoCapitalize="none"
-          className="text-gray-900 dark:text-white font-['Inter\_500Medium'] p-4  w-full rounded-lg border-2 border-gray-300 dark:border-gray-500 dark:focus:border-gray-400"
+          className="text-gray-900 dark:text-white font-['Inter\_500Medium'] p-2.5  w-full rounded-lg border-2 border-gray-300 dark:border-gray-500 dark:focus:border-gray-400"
           onChangeText={_mnemonic}
         />
         <TextMedium className="block text-xs text-right text-gray-400 dark:text-gray-500">
