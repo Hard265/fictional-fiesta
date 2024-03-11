@@ -14,7 +14,8 @@ interface OptionProps {
     label: string,
     icon: string,
     isTrailing?: boolean,
-    onTap?: () => void
+    onTap?: () => void;
+    disabled?: boolean;
 }
 
 export function Options({ title, children }: OptionsProps) {
@@ -29,7 +30,7 @@ export function Options({ title, children }: OptionsProps) {
 }
 
 
-export function Option({ label, icon, isTrailing = false, onTap }: OptionProps) {
+export function Option({ label, icon, isTrailing = false, onTap, disabled }: OptionProps) {
     const theme = useTheme()
     return <>
         <Pressable onPress={onTap} className={"flex flex-row px-4 py-3 justify-between " + (!isTrailing && 'border-b border-gray-300 dark:border-gray-700')}>
