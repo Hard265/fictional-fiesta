@@ -40,6 +40,18 @@ export default observer(() => {
     setup();
   }, []);
 
+  const onmute = ()=>{
+    
+  }
+
+  const onblock = ()=>{
+    
+  }
+
+  const ondelete = ()=>{
+    router.replace("/chat")
+  }
+
   return (
     <View className="flex-1 justify-end p-4 dark:bg-black">
       {!user ? (
@@ -62,17 +74,18 @@ export default observer(() => {
         <Option label="Export Data" icon="download-cloud" isTrailing />
       </Options>
       <Options title="Privacy Controls">
-        <Option label="Mute notifications" icon="toggle-left" />
-        <Option label="Block" icon="toggle-left" isTrailing />
+        <Option disabled={!user} label="Mute notifications" icon="toggle-left" />
+        <Option disabled={!user} label="Block" icon="toggle-left" isTrailing />
       </Options>
 
       <Button
+        disabled={!user}
         className="rounded-lg mt-4"
         mode="contained-tonal"
         labelStyle={[TextButtonStyle]}
         buttonColor={theme.colors.errorContainer}
         textColor={theme.colors.onErrorContainer}
-        onPress={() => console.log("Pressed")}
+        onPress={ondelete}
       >
         Delete {displayName || address}
       </Button>
