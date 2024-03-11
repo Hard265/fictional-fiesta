@@ -21,7 +21,7 @@ export function UserCard({ user, ...props }: UserCardProps) {
     <ListItemCard
       title={user.displayName || user.address}
       description={user.displayName ?? user.address}
-      
+      {...props}
     />
   );
 }
